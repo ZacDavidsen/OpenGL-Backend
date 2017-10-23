@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{48976199-4ce9-4b85-ac8a-c9a92ca6687f}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)glad.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)GLManager.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Matrix.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Model.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Shader.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)GLManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Matrix.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Model.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Shader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)window.h" />
+  </ItemGroup>
+</Project>
