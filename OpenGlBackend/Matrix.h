@@ -6,18 +6,21 @@ namespace MatrixHidden
 {
 	template<unsigned int height, unsigned int width = height>
 	class Matrix;
+
+	template<unsigned int length>
+	class Vector;
 }
 
 typedef MatrixHidden::Matrix<2> Mat2;
 typedef MatrixHidden::Matrix<4> Mat4;
-typedef MatrixHidden::Matrix<2, 1> Vec2;
-typedef MatrixHidden::Matrix<3, 1> Vec3;
-typedef MatrixHidden::Matrix<4, 1> Vec4;
+typedef MatrixHidden::Vector<2> Vec2;
+typedef MatrixHidden::Vector<3> Vec3;
+typedef MatrixHidden::Vector<4> Vec4;
 
 namespace Mat
 {
 	template<unsigned int length>
-		MatrixHidden::Matrix<length, 1> normalize(const MatrixHidden::Matrix<length, 1> &vec);
+		MatrixHidden::Vector<length> normalize(const MatrixHidden::Vector<length> &vec);
 
 	Mat4 translate(const Mat4 &mat, const Vec3 &transform);
 	Mat4 scale(const Mat4 &mat, const Vec3 &transform);
@@ -38,17 +41,13 @@ namespace MatrixHidden
 	template<unsigned int height, unsigned int width>
 	class Matrix
 	{
-		int rows;
-		int cols;
-		float vals[height*width];
 
 		template<unsigned int height, unsigned int width> friend class Matrix;
 
-		template<unsigned int length> friend
-			Matrix<length, 1> Mat::normalize(const Matrix<length, 1> &vec);
-		friend Mat4 Mat::translate(const Mat4 &mat, const Vec3 &transform);
-		friend Mat4 Mat::scale(const Mat4 &mat, const Vec3 &transform);
-		friend Mat4 Mat::rotate(const Mat4 &m, float angle, const Vec3 &v);
+		int rows;
+		int cols;
+	protected:
+		float vals[height*width];
 
 	public:
 		Matrix(float diagVal = 1)
@@ -118,11 +117,6 @@ namespace MatrixHidden
 			//delete[] vals;
 		}
 
-		operator const float*() const
-		{
-			return this->vals;
-		}
-
 		Matrix operator+(const Matrix &right)
 		{
 			float newVals[height*width];
@@ -177,6 +171,21 @@ namespace MatrixHidden
 			return Matrix(newVals);
 		}
 
+		operator float*()
+		{
+			return this->vals;
+		}
+
+		operator const float*() const
+		{
+			return this->vals;
+		}
+
+		float* operator[](int row)
+		{
+			return &vals[row*width];
+		}
+
 		void print()
 		{
 			for (int i = 0; i < height; i++)
@@ -207,5 +216,33 @@ namespace MatrixHidden
 	{
 		return mat * num;
 	}
+
+
+
+	template<unsigned int length>
+	class Vector : public Matrix<length, 1>
+	{
+		template<unsigned int height, unsigned int width> friend
+			Matrix<height, width> operator*(const Matrix<height, width> &mat, float num);
+	public:
+		Vector(float values[])
+			: Matrix(values)
+		{
+		}
+
+		Vector(std::initializer_list<float> values)
+			: Matrix(values)
+		{
+		}
+
+		Vector(const Matrix &mat)
+			: Matrix(mat)
+		{
+		}
+
+		float& operator[](int index){
+			return vals[index];
+		}
+	};
 }
 

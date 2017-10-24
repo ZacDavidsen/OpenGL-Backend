@@ -3,13 +3,13 @@
 namespace Mat
 {
 	template<unsigned int length>
-	MatrixHidden::Matrix<length, 1> normalize(const MatrixHidden::Matrix<length, 1> &vec)
+	MatrixHidden::Vector<length> normalize(const MatrixHidden::Vector<length> &vec)
 	{
 		float mag = 0;
 
 		for (int i = 0; i < length; i++)
 		{
-			mag += vec.vals[i] * vec.vals[i];
+			mag += vec[i] * vec[i];
 		}
 
 		mag = std::sqrt(mag);
@@ -22,7 +22,7 @@ namespace Mat
 		MatrixHidden::Matrix<4> ret = MatrixHidden::Matrix<4>(mat);
 		for (int i = 0; i < 3; i++)
 		{
-			ret.vals[(i + 1) * 4 - 1] += transform.vals[i];
+			ret[i][3] += transform[i];
 		}
 		return ret;
 	}
@@ -32,7 +32,7 @@ namespace Mat
 		MatrixHidden::Matrix<4> ret = MatrixHidden::Matrix<4>(mat);
 		for (int i = 0; i < 3; i++)
 		{
-			ret.vals[i * 4 + i] *= transform.vals[i];
+			ret[i][i] *= transform[i];
 		}
 		return ret;
 	}
@@ -48,17 +48,17 @@ namespace Mat
 		Vec3 temp((1.0f - c) * axis);
 
 		Mat4 Rotate = Mat4();
-		Rotate.vals[0] = c + temp[0] * axis[0];
-		Rotate.vals[1] = temp[0] * axis[1] + s * axis[2];
-		Rotate.vals[2] = temp[0] * axis[2] - s * axis[1];
+		Rotate[0][0] = c + temp[0] * axis[0];
+		Rotate[0][1] = temp[0] * axis[1] + s * axis[2];
+		Rotate[0][2] = temp[0] * axis[2] - s * axis[1];
 
-		Rotate.vals[4] = temp[1] * axis[0] - s * axis[2];
-		Rotate.vals[5] = c + temp[1] * axis[1];
-		Rotate.vals[6] = temp[1] * axis[2] + s * axis[0];
+		Rotate[1][0] = temp[1] * axis[0] - s * axis[2];
+		Rotate[1][1] = c + temp[1] * axis[1];
+		Rotate[1][2] = temp[1] * axis[2] + s * axis[0];
 
-		Rotate.vals[8] = temp[2] * axis[0] + s * axis[1];
-		Rotate.vals[9] = temp[2] * axis[1] - s * axis[0];
-		Rotate.vals[10] = c + temp[2] * axis[2];
+		Rotate[2][0] = temp[2] * axis[0] + s * axis[1];
+		Rotate[2][1] = temp[2] * axis[1] - s * axis[0];
+		Rotate[2][2] = c + temp[2] * axis[2];
 
 		return m*Rotate;
 	}
