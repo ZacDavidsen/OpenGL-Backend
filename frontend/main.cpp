@@ -79,18 +79,18 @@ int main()
 
 	//GLManager manager = GLManager();
 
-	GLManager::createShaderProgram(SHADER_TEXTURE, 5, textureVertexSource, textureFragmentSource);
+	GLManager::createShaderProgram(SHADER_TEXTURE, 8, textureVertexSource, textureFragmentSource);
 	GLManager::addShaderAttribute(SHADER_TEXTURE, "aPos", 3, 0);
-	GLManager::addShaderAttribute(SHADER_TEXTURE, "aTexCoord", 2, 3);
+	GLManager::addShaderAttribute(SHADER_TEXTURE, "aTexCoord", 2, 6);
 
-	GLManager::createShaderProgram(SHADER_COLOR, 6, colorVertexSource, colorFragmentSource);
+	GLManager::createShaderProgram(SHADER_COLOR, 8, colorVertexSource, colorFragmentSource);
 	GLManager::addShaderAttribute(SHADER_COLOR, "aPos", 3, 0);
 	GLManager::addShaderAttribute(SHADER_COLOR, "aColor", 3, 3);
 
 	GLManager::loadTexture(TEXTURE_WOODEN_BOX, "container.jpg");
 	//manager.loadTexture(TEXTURE_TILES, "terrainTiles.png");
 
-	/*
+	//*
 	float vertices[] = {
 		// positions          // colors           // texture coords
 		 0.0f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
@@ -114,7 +114,7 @@ int main()
 		0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f  // top left
 	};
 
-	manager.addModel(MODEL_BOX2, SHADER_COLOR, 4, vertices1, 2, indices);
+	GLManager::addModel(MODEL_BOX2, SHADER_COLOR, 4, vertices1, 2, indices);
 	/*/
 	float vertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -180,8 +180,18 @@ int main()
 	//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
 	//trans = Mat::scale(trans, { 0.5, 0.5, 0.5 });
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	GLManager::loadUniform(SHADER_TEXTURE, "camera", Mat4());
+	GLManager::loadUniform(SHADER_COLOR, "camera", Mat4());
 
+	//*
+	GLManager::loadUniform(SHADER_TEXTURE, "projection", Mat4());
+	GLManager::loadUniform(SHADER_COLOR, "projection", Mat4());
+	/*/
+	GLManager::loadUniform(SHADER_TEXTURE, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
+	GLManager::loadUniform(SHADER_COLOR, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
+	//*/
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
 
 	while (!glfwWindowShouldClose(window))
@@ -201,12 +211,7 @@ int main()
 		//trans = Mat::perspective(Mat::toRads(45.0f), 800 / 600, 0.1f, 100.0f)*trans;
 		//trans = Mat::orthographic(8, 6, 0.1f, 100.0f)*trans;
 
-		GLManager::loadUniform(SHADER_TEXTURE, "camera", Mat4()); 
-		GLManager::loadUniform(SHADER_COLOR, "camera", Mat4());
-
-		GLManager::loadUniform(SHADER_TEXTURE, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
-		GLManager::loadUniform(SHADER_COLOR, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
-		
+		/*
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			Mat4 trans;
@@ -218,9 +223,12 @@ int main()
 
 			GLManager::drawItem(MODEL_BOX, TEXTURE_WOODEN_BOX);
 		}
+		/*/
+		GLManager::loadUniform(SHADER_TEXTURE, "model", Mat4());
+		GLManager::loadUniform(SHADER_COLOR, "model", Mat4());
 
-		//manager.drawItem(MODEL_BOX, TEXTURE_WOODEN_BOX);
-		//manager.drawItem(MODEL_BOX2);
+		GLManager::drawItem(MODEL_BOX, TEXTURE_WOODEN_BOX);
+		GLManager::drawItem(MODEL_BOX2);
 		
 
 		glfwSwapBuffers(window);

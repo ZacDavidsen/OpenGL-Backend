@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\davidszt\Documents\CodingHelpers\stbLibs;C:\Users\davidszt\Documents\CodingHelpers\GLFW\x86\include;C:\Users\davidszt\Documents\CodingHelpers\GLAD\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)OpenGlBackend\GLAD\include;$(SolutionDir)OpenGlBackend\stbLibs;$(SolutionDir)OpenGlBackend\GLFW\x86\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Users\davidszt\Documents\CodingHelpers\stbLibs;C:\Users\davidszt\Documents\CodingHelpers\GLFW\x86\include;C:\Users\davidszt\Documents\CodingHelpers\GLAD\include;$(IncludePath)</IncludePath>
@@ -83,7 +83,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Users\davidszt\Documents\CodingHelpers\GLFW\x86\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)OpenGlBackend\GLFW\x86\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
