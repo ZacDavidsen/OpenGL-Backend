@@ -1,26 +1,29 @@
 #pragma once
 #include <iostream>
 #include <cmath>
+#include "MatrixForwardDec.h"
 
-namespace MatrixHidden
-{
-	template<unsigned int height, unsigned int width = height>
-	class Matrix;
-
-	template<unsigned int length>
-	class Vector;
-}
-
-typedef MatrixHidden::Matrix<2> Mat2;
-typedef MatrixHidden::Matrix<4> Mat4;
-typedef MatrixHidden::Vector<2> Vec2;
-typedef MatrixHidden::Vector<3> Vec3;
-typedef MatrixHidden::Vector<4> Vec4;
+//namespace MatrixHidden
+//{
+//	template<unsigned int height, unsigned int width = height>
+//	class Matrix;
+//
+//	template<unsigned int length>
+//	class Vector;
+//}
+//
+//typedef MatrixHidden::Matrix<2> Mat2;
+//typedef MatrixHidden::Matrix<4> Mat4;
+//typedef MatrixHidden::Vector<2> Vec2;
+//typedef MatrixHidden::Vector<3> Vec3;
+//typedef MatrixHidden::Vector<4> Vec4;
 
 namespace Mat
 {
 	template<unsigned int length>
-		MatrixHidden::Vector<length> normalize(const MatrixHidden::Vector<length> &vec);
+	MatrixHidden::Vector<length> normalize(const MatrixHidden::Vector<length> &vec);
+
+	//Vec3 cross(Vec3 left, Vec3 right);
 
 	Mat4 translate(const Mat4 &mat, const Vec3 &transform);
 	Mat4 scale(const Mat4 &mat, const Vec3 &transform);
@@ -44,9 +47,10 @@ namespace MatrixHidden
 
 		template<unsigned int height, unsigned int width> friend class Matrix;
 
+	protected:
 		int rows;
 		int cols;
-	protected:
+
 		float vals[height*width];
 
 	public:
@@ -117,7 +121,7 @@ namespace MatrixHidden
 			//delete[] vals;
 		}
 
-		Matrix operator+(const Matrix &right)
+		Matrix operator+(const Matrix &right) const
 		{
 			float newVals[height*width];
 			for (int i = 0; i < height*width; i++)
@@ -127,7 +131,7 @@ namespace MatrixHidden
 			return Matrix(newVals);
 		}
 
-		Matrix operator-(const Matrix &right)
+		Matrix operator-(const Matrix &right) const
 		{
 			float newVals[height*width];
 			for (int i = 0; i < height*width; i++)
@@ -171,6 +175,16 @@ namespace MatrixHidden
 			return Matrix(newVals);
 		}
 
+		Matrix operator-()
+		{
+			float newVals[height*width];
+			for (int i = 0; i < height*width; i++)
+			{
+				newVals[i] = -this->vals[i];
+			}
+			return Matrix(newVals);
+		}
+
 		operator float*()
 		{
 			return this->vals;
@@ -200,6 +214,8 @@ namespace MatrixHidden
 		}
 	};
 
+
+
 	template<unsigned int height, unsigned int width>
 	Matrix<height, width> operator*(const Matrix<height, width> &mat, float num)
 	{
@@ -219,12 +235,26 @@ namespace MatrixHidden
 
 
 
+
+
+
+
+	//Totally not sure if this class is worth it, the only changed functionality is the 
+	//subscript operator, and everything else needs overloaded to return the correct types...
 	template<unsigned int length>
 	class Vector : public Matrix<length, 1>
 	{
 		template<unsigned int height, unsigned int width> friend
 			Matrix<height, width> operator*(const Matrix<height, width> &mat, float num);
 	public:
+		Vector()
+		{
+			for (int i = 0; i < length; i++)
+			{
+				vals[i] = 0;
+			}
+		}
+
 		Vector(float values[])
 			: Matrix(values)
 		{
@@ -243,6 +273,77 @@ namespace MatrixHidden
 		float& operator[](int index){
 			return vals[index];
 		}
+
+		float dotProduct(const Vector &right)
+		{
+			float total = 0;
+			for (int i = 0; i < length; i++)
+			{
+				total += this->vals[i] * right.vals[i];
+			}
+			return total;
+		}
+
+	};
+
+
+
+
+	template<>
+	class Vector<3> : public Matrix<3, 1>
+	{
+		template<unsigned int height, unsigned int width> friend
+			Matrix<height, width> operator*(const Matrix<height, width> &mat, float num);
+	public:
+		Vector()
+		{
+			for (int i = 0; i < 3/*this->cols*/; i++)
+			{
+				vals[i] = 0;
+			}
+		}
+
+		Vector(float values[])
+			: Matrix(values)
+		{
+		}
+
+		Vector(std::initializer_list<float> values)
+			: Matrix(values)
+		{
+		}
+
+		Vector(const Matrix &mat)
+			: Matrix(mat)
+		{
+		}
+
+		float& operator[](int index)
+		{
+			return vals[index];
+		}
+
+		float dotProduct(const Vector &right)
+		{
+			float total = 0;
+			for (int i = 0; i < 3/*this->cols*/; i++)
+			{
+				total += this->vals[i] * right.vals[i];
+			}
+			return total;
+		}
+
+		Vec3 cross(const Vec3 &right)
+		{
+			Vec3 ret;
+
+			ret[0] = vals[1] * right[2] - vals[2] * right[1];
+			ret[1] = vals[2] * right[0] - vals[0] * right[2];
+			ret[2] = vals[0] * right[1] - vals[1] * right[0];
+
+			return ret;
+		}
+
 	};
 }
 

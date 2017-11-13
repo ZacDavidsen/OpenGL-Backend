@@ -44,5 +44,8 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)MatrixForwardDec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

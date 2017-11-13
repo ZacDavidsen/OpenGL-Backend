@@ -24,6 +24,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)GLManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Matrix.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MatrixForwardDec.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Model.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Shader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)window.h" />

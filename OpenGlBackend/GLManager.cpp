@@ -4,6 +4,7 @@
 
 #include "Shader.h"
 #include "Model.h"
+#include "Matrix.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -45,12 +46,12 @@ void GLManager::addShaderAttribute(int shaderId, int location, const char* name,
 }
 
 
-void GLManager::loadUniform(int shaderId, std::string name, Mat4 data)
+void GLManager::loadUniform(int shaderId, std::string name, const Mat4 data)
 {
 	shaders.at(shaderId).loadUniform(name, data);
 }
 
-void GLManager::loadUniform(int shaderId, std::string name, Vec3 data)
+void GLManager::loadUniform(int shaderId, std::string name, const Vec3 data)
 {
 	shaders.at(shaderId).loadUniform(name, data);
 }
@@ -73,7 +74,9 @@ void GLManager::loadTexture(int referenceId, std::string fileName)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load and generate the texture
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load((/*this->*/texturePath + fileName).c_str(), &width, &height, &nrChannels, 3);//TODO fix hack
+
+	//TODO fix hack and actually make the function accept all the needed configuration parameters
+	unsigned char *data = stbi_load((/*this->*/texturePath + fileName).c_str(), &width, &height, &nrChannels, 3);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

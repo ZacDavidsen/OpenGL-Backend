@@ -1,6 +1,6 @@
 #pragma once
 #include <unordered_map>
-#include "Matrix.h"
+#include "MatrixForwardDec.h"
 
 namespace/*class*/ GLManager
 {

@@ -17,6 +17,17 @@ namespace Mat
 		return vec / mag;
 	}
 
+	Vec3 cross(Vec3 left, Vec3 right)
+	{
+		Vec3 ret;
+
+		ret[0] = left[1] * right[2] - left[2] * right[1];
+		ret[1] = left[2] * right[0] - left[0] * right[2];
+		ret[2] = left[0] * right[1] - left[1] * right[0];
+
+		return ret;
+	}
+
 	Mat4 translate(const Mat4& mat, const Vec3& transform)
 	{
 		MatrixHidden::Matrix<4> ret = MatrixHidden::Matrix<4>(mat);

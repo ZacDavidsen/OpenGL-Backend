@@ -6,6 +6,8 @@
 #include "GLManager.h"
 #include "Matrix.h"
 
+#include "Camera.h"
+
 enum Shaders
 {
 	SHADER_COLOR,
@@ -30,6 +32,33 @@ void callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 		glfwSetWindowShouldClose(window, true);
 }
 
+double xPos, yPos;
+
+void processInput(GLFWwindow *window)
+{
+	float movementSpeed = 0.05f;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		Camera::moveForward(1 * movementSpeed);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		Camera::moveBack(1 * movementSpeed);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		Camera::moveLeft(1 * movementSpeed);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		Camera::moveRight(1 * movementSpeed);
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		Camera::moveDown(1 * movementSpeed);
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		Camera::moveUp(1 * movementSpeed);
+
+	float mouseSensitivity = 0.05f;
+	float lastX = xPos, lastY = yPos;
+
+	glfwGetCursorPos(window, &xPos, &yPos);//coordinates are measured from the top-left corner of window
+	std::cout << (char)0xd << "dx:" << xPos-lastX << (char)0x9 << "dy:" << lastY-yPos << (char)0x9;
+	Camera::rotateHorizontal(Mat::toRads((xPos - lastX)*mouseSensitivity));
+	Camera::rotateVertical(Mat::toRads((lastY - yPos)*mouseSensitivity));
+}
+
 int main()
 {
 	GLFWwindow* window = NULL;
@@ -39,6 +68,9 @@ int main()
 	}
 
 	glfwSetKeyCallback(window, callback);
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwGetCursorPos(window, &xPos, &yPos);
 
 	//GLManager manager = GLManager();
 
@@ -112,7 +144,7 @@ int main()
 		Vec3{-1.3f,  1.0f, -1.5f}
 	};
 
-	GLManager::loadUniform(SHADER_TEXTURE, "camera", Mat4());
+	GLManager::loadUniform(SHADER_TEXTURE, "camera", Camera::getCameraMatrix());
 	//GLManager::loadUniform(SHADER_COLOR, "camera", Mat4());
 
 	GLManager::loadUniform(SHADER_TEXTURE, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
@@ -126,10 +158,18 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		float camX = sin(glfwGetTime()) * 10;
+		float camZ = cos(glfwGetTime()) * 10;
+
+		processInput(window);
+		//Camera::setPosition({ camX, 0, camZ });
+		//Camera::setTarget({ 0,0,0 });
+		GLManager::loadUniform(SHADER_TEXTURE, "camera", Camera::getCameraMatrix());
+
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			Mat4 trans;
-			trans = Mat::translate(trans, Vec3{ 0.0f, 0.0f, -3.0f });
+			//trans = Mat::translate(trans, Vec3{ 0.0f, 0.0f, -3.0f });
 			trans = Mat::translate(trans, cubePositions[i]);
 			float angle = 20.0f * i;
 			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });
