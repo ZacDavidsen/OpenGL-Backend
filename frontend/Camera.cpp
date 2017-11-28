@@ -68,6 +68,8 @@ namespace Camera
 		return lookAt(_position, _direction);
 	}
 
+
+
 	void moveForward(float distance)
 	{
 		Vec3 temp = _direction;

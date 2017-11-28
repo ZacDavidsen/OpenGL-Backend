@@ -18,14 +18,11 @@ Model::~Model()
 {
 }
 
-void Model::drawModel(unsigned int textureId)
+void Model::drawModel()
 {
 	glUseProgram(shaderId);
 	glBindVertexArray(VAO);
-	if (textureId != 0)
-	{
-		glBindTexture(GL_TEXTURE_2D, textureId);
-	}
+
 	if (this->hasEBO)
 	{
 		glDrawElements(GL_TRIANGLES, drawCount, GL_UNSIGNED_INT, 0);

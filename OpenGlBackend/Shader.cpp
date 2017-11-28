@@ -114,6 +114,26 @@ void Shader::loadUniform(std::string name, const Vec3 data)
 	glUseProgram(0);
 }
 
+void Shader::loadUniform(std::string name, int data)
+{
+	Uniform uni;
+	auto locationIterator = this->uniforms.find(name);
+	if (locationIterator == this->uniforms.end())
+	{//then we dont know the location, so we need to find it
+		int location = glGetUniformLocation(this->id, name.c_str());
+		uni = Uniform{ location };
+		this->uniforms.emplace(name, uni);
+	}
+	else
+	{
+		uni = locationIterator->second;
+	}
+
+	glUseProgram(this->id);
+	glUniform1i(uni.location, data);
+	glUseProgram(0);
+}
+
 const std::vector<AttributeArray>& Shader::getAttributes() const
 {
 	return this->attributes;

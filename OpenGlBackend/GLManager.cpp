@@ -56,6 +56,14 @@ void GLManager::loadUniform(int shaderId, std::string name, const Vec3 data)
 	shaders.at(shaderId).loadUniform(name, data);
 }
 
+void GLManager::setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId)
+{
+	glActiveTexture(GL_TEXTURE0 + textureSlot);
+	glBindTexture(GL_TEXTURE_2D, textures.at(textureId));
+	shaders.at(shaderId).loadUniform(uniformName, textureSlot);
+	glActiveTexture(0);
+}
+
 
 void GLManager::setTextureFolder(std::string path)
 {
@@ -72,15 +80,17 @@ void GLManager::loadTexture(int referenceId, std::string fileName)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load and generate the texture
-	int width, height, nrChannels;
 
-	//TODO fix hack and actually make the function accept all the needed configuration parameters
-	unsigned char *data = stbi_load((/*this->*/texturePath + fileName).c_str(), &width, &height, &nrChannels, 3);
+	// load and generate the texture
+	// width and height are in pixels
+	int width, height, origBitsPerPixel;
+
+	//TODO fix hack and actually make the function accept all the needed configuration parameters (ignores alpha)
+	unsigned char *data = stbi_load((/*this->*/texturePath + fileName).c_str(), &width, &height, &origBitsPerPixel, 4);
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		//glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
@@ -121,31 +131,31 @@ void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCou
 	glBindVertexArray(0);
 }
 
-void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int textureId)
-{
-	//TODO refactor for color suppport
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 5 * verticesCount, vertices, GL_STATIC_DRAW);
-
-	Shader& shader = shaders.at(shaderId);
-	for (auto attr : shader.getAttributes())
-	{
-		glVertexAttribPointer(attr.location, attr.size, GL_FLOAT, GL_FALSE, shader.getVertexElements() * sizeof(float), (void*)(attr.offset * sizeof(float)));
-		glEnableVertexAttribArray(attr.location);
-	}
-
-	Model model(shader, VAO, verticesCount);
-	models.emplace(referenceId, model);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
+//void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int textureId)
+//{
+//	//TODO refactor for color suppport
+//	unsigned int VAO;
+//	glGenVertexArrays(1, &VAO);
+//	glBindVertexArray(VAO);
+//
+//	unsigned int VBO;
+//	glGenBuffers(1, &VBO);
+//	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 5 * verticesCount, vertices, GL_STATIC_DRAW);
+//
+//	Shader& shader = shaders.at(shaderId);
+//	for (auto attr : shader.getAttributes())
+//	{
+//		glVertexAttribPointer(attr.location, attr.size, GL_FLOAT, GL_FALSE, shader.getVertexElements() * sizeof(float), (void*)(attr.offset * sizeof(float)));
+//		glEnableVertexAttribArray(attr.location);
+//	}
+//
+//	Model model(shader, VAO, verticesCount);
+//	models.emplace(referenceId, model);
+//
+//	glBindBuffer(GL_ARRAY_BUFFER, 0);
+//	glBindVertexArray(0);
+//}
 
 void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[])
 {
@@ -180,42 +190,42 @@ void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCou
 	glBindVertexArray(0);
 }
 
-void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[], unsigned int textureId)
+//void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[], unsigned int textureId)
+//{
+//	Shader& shader = shaders.at(shaderId);
+//	unsigned int numElements = shader.getVertexElements();
+//
+//	//TODO refactor for color suppport
+//	unsigned int VAO;
+//	glGenVertexArrays(1, &VAO);
+//	glBindVertexArray(VAO);
+//
+//	unsigned int VBO;
+//	glGenBuffers(1, &VBO);
+//	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numElements * verticesCount, vertices, GL_STATIC_DRAW);
+//
+//	unsigned int EBOid;
+//	glGenBuffers(1, &EBOid);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOid);
+//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * 3 * EBOTriangles, EBO, GL_STATIC_DRAW);
+//
+//	for (auto attr : shader.getAttributes())
+//	{
+//		glVertexAttribPointer(attr.location, attr.size, GL_FLOAT, GL_FALSE, numElements * sizeof(float), (void*)(attr.offset * sizeof(float)));
+//		glEnableVertexAttribArray(attr.location);
+//	}
+//
+//	Model model(shader, VAO, EBOTriangles * 3, true);
+//	models.emplace(referenceId, model);
+//
+//	glBindBuffer(GL_ARRAY_BUFFER, 0);
+//	glBindVertexArray(0);
+//}
+
+
+
+void GLManager::drawItem(int modelId)
 {
-	Shader& shader = shaders.at(shaderId);
-	unsigned int numElements = shader.getVertexElements();
-
-	//TODO refactor for color suppport
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numElements * verticesCount, vertices, GL_STATIC_DRAW);
-
-	unsigned int EBOid;
-	glGenBuffers(1, &EBOid);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOid);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * 3 * EBOTriangles, EBO, GL_STATIC_DRAW);
-
-	for (auto attr : shader.getAttributes())
-	{
-		glVertexAttribPointer(attr.location, attr.size, GL_FLOAT, GL_FALSE, numElements * sizeof(float), (void*)(attr.offset * sizeof(float)));
-		glEnableVertexAttribArray(attr.location);
-	}
-
-	Model model(shader, VAO, EBOTriangles * 3, true);
-	models.emplace(referenceId, model);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
-
-
-
-void GLManager::drawItem(int modelId, int textureId)
-{
-	models.at(modelId).drawModel(textures.at(textureId));
+	models.at(modelId).drawModel();
 }

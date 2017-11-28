@@ -28,6 +28,7 @@ public:
 
 	void loadUniform(std::string name, const Mat4 data);
 	void loadUniform(std::string name, const Vec3 data);
+	void loadUniform(std::string name, int data);
 
 	operator unsigned int() { return this->id; };
 };

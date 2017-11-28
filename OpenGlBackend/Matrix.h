@@ -197,7 +197,7 @@ namespace MatrixHidden
 
 		float* operator[](int row)
 		{
-			return &vals[row*width];
+			return vals + row*width;//&vals[row*width];
 		}
 
 		void print()

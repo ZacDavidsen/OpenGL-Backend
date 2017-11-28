@@ -24,11 +24,13 @@ namespace/*class*/ GLManager
 	void loadUniform(int shaderId, std::string name, Mat4 data);
 	void loadUniform(int shaderId, std::string name, Vec3 data);
 
-	void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[]);
-	void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int textureId);
-	void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[]);
-	void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[], unsigned int textureId);
+	void setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId);
 
-	void drawItem(int modelId, int textureId = 0);
+	void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[]);
+	//void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int textureId);
+	void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[]);
+	//void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[], unsigned int textureId);
+
+	void drawItem(int modelId);
 };
 

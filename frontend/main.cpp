@@ -54,7 +54,7 @@ void processInput(GLFWwindow *window)
 	float lastX = xPos, lastY = yPos;
 
 	glfwGetCursorPos(window, &xPos, &yPos);//coordinates are measured from the top-left corner of window
-	std::cout << (char)0xd << "dx:" << xPos-lastX << (char)0x9 << "dy:" << lastY-yPos << (char)0x9;
+	//std::cout << (char)0xd << "dx:" << xPos-lastX << (char)0x9 << "dy:" << lastY-yPos << (char)0x9;
 	Camera::rotateHorizontal(Mat::toRads((xPos - lastX)*mouseSensitivity));
 	Camera::rotateVertical(Mat::toRads((lastY - yPos)*mouseSensitivity));
 }
@@ -83,7 +83,7 @@ int main()
 	//GLManager::addShaderAttribute(SHADER_COLOR, "aColor", 3, 3);
 
 	GLManager::loadTexture(TEXTURE_WOODEN_BOX, "container.jpg");
-	//manager.loadTexture(TEXTURE_TILES, "terrainTiles.png");
+	GLManager::loadTexture(TEXTURE_TILES, "terrainTiles.png");
 
 	float vertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -129,7 +129,7 @@ int main()
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-	GLManager::addModel(MODEL_BOX, SHADER_TEXTURE, 36, vertices, TEXTURE_WOODEN_BOX);
+	GLManager::addModel(MODEL_BOX, SHADER_TEXTURE, 36, vertices);
 
 	Vec3 cubePositions[] = {
 		Vec3{0.0f,  0.0f,  0.0f},
@@ -174,8 +174,8 @@ int main()
 			float angle = 20.0f * i;
 			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });
 			GLManager::loadUniform(SHADER_TEXTURE, "model", trans);
-
-			GLManager::drawItem(MODEL_BOX, TEXTURE_WOODEN_BOX);
+			GLManager::setTextureUniform(SHADER_TEXTURE, 2, "ourTexture", TEXTURE_TILES);
+			GLManager::drawItem(MODEL_BOX);
 		}
 
 		glfwSwapBuffers(window);

@@ -57,5 +57,8 @@ uniform sampler2D ourTexture;\n\
 \n\
 void main()\n\
 {\n\
-FragColor = texture(ourTexture, TexCoord);\n\
+vec4 texel = texture(ourTexture, TexCoord);\n\
+if(texel.a < 0.5)\n\
+	discard;\n\
+FragColor = texel;\n\
 }";

@@ -11,6 +11,6 @@ public:
 	Model(unsigned int shaderId, unsigned int VAO, unsigned int drawCount, bool hasEBO = false);
 	~Model();
 
-	void drawModel(unsigned int textureId = 0);
+	void drawModel();
 };
 
