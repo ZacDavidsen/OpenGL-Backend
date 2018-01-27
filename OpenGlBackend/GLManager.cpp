@@ -85,7 +85,6 @@ void GLManager::loadTexture(int referenceId, std::string fileName)
 	// width and height are in pixels
 	int width, height, origBitsPerPixel;
 
-	//TODO fix hack and actually make the function accept all the needed configuration parameters (ignores alpha)
 	unsigned char *data = stbi_load((/*this->*/texturePath + fileName).c_str(), &width, &height, &origBitsPerPixel, 4);
 	if (data)
 	{
@@ -107,6 +106,9 @@ void GLManager::loadTexture(int referenceId, std::string fileName)
 
 void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[])
 {
+	Shader& shader = shaders.at(shaderId);
+	unsigned int numElements = shader.getVertexElements();
+
 	//TODO refactor for color suppport
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -115,12 +117,11 @@ void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCou
 	unsigned int VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * verticesCount, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numElements * verticesCount, vertices, GL_STATIC_DRAW);
 
-	Shader& shader = shaders.at(shaderId);
 	for (auto attr : shader.getAttributes())
 	{
-		glVertexAttribPointer(attr.location, attr.size, GL_FLOAT, GL_FALSE, shader.getVertexElements() * sizeof(float), (void*)(attr.offset * sizeof(float)));
+		glVertexAttribPointer(attr.location, attr.size, GL_FLOAT, GL_FALSE, numElements * sizeof(float), (void*)(attr.offset * sizeof(float)));
 		glEnableVertexAttribArray(attr.location);
 	}
 

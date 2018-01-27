@@ -255,6 +255,14 @@ namespace MatrixHidden
 			}
 		}
 
+		Vector(float initVal)
+		{
+			for (int i = 0; i < length; i++)
+			{
+				vals[i] = initVal;
+			}
+		}
+
 		Vector(float values[])
 			: Matrix(values)
 		{
@@ -300,6 +308,14 @@ namespace MatrixHidden
 			for (int i = 0; i < 3/*this->cols*/; i++)
 			{
 				vals[i] = 0;
+			}
+		}
+
+		Vector(float initVal)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				vals[i] = initVal;
 			}
 		}
 

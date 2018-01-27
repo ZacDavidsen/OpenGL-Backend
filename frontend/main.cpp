@@ -11,6 +11,7 @@
 enum Shaders
 {
 	SHADER_COLOR,
+	SHADER_LIGHT,
 	SHADER_TEXTURE
 };
 
@@ -61,6 +62,7 @@ void processInput(GLFWwindow *window)
 
 int main()
 {
+
 	GLFWwindow* window = NULL;
 	if (initWindow(600, 800, window) != 0)
 	{
@@ -74,62 +76,67 @@ int main()
 
 	//GLManager manager = GLManager();
 
-	GLManager::createShaderProgram(SHADER_TEXTURE, 5, textureVertexSource, textureFragmentSource);
+	GLManager::createShaderProgram(SHADER_TEXTURE, 8, textureVertexSource, textureFragmentSource);
 	GLManager::addShaderAttribute(SHADER_TEXTURE, "aPos", 3, 0);
 	GLManager::addShaderAttribute(SHADER_TEXTURE, "aTexCoord", 2, 3);
+	GLManager::addShaderAttribute(SHADER_TEXTURE, "aNorm", 3, 5);
 
 	//GLManager::createShaderProgram(SHADER_COLOR, 6, colorVertexSource, colorFragmentSource);
 	//GLManager::addShaderAttribute(SHADER_COLOR, "aPos", 3, 0);
 	//GLManager::addShaderAttribute(SHADER_COLOR, "aColor", 3, 3);
 
+	GLManager::createShaderProgram(SHADER_LIGHT, 8, lightVertexSource, lightFragmentSource);
+	GLManager::addShaderAttribute(SHADER_LIGHT, "aPos", 3, 0);
+
 	GLManager::loadTexture(TEXTURE_WOODEN_BOX, "container.jpg");
 	GLManager::loadTexture(TEXTURE_TILES, "terrainTiles.png");
 
 	float vertices[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f, 0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f, 0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
 
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  1.0f, 0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
 
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  -1.0f, 0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  -1.0f, 0.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
 
-	0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+	0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+	0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+	0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+	0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+	0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
 
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, -1.0f,  0.0f,
 
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f
 	};
 
 	GLManager::addModel(MODEL_BOX, SHADER_TEXTURE, 36, vertices);
+	GLManager::addModel(MODEL_BOX2, SHADER_LIGHT, 36, vertices);
 
 	Vec3 cubePositions[] = {
 		Vec3{0.0f,  0.0f,  0.0f},
@@ -144,11 +151,25 @@ int main()
 		Vec3{-1.3f,  1.0f, -1.5f}
 	};
 
+	Camera::setPosition({ 0.0f, 0.0f, 2.0f });
+
 	GLManager::loadUniform(SHADER_TEXTURE, "camera", Camera::getCameraMatrix());
+	GLManager::loadUniform(SHADER_LIGHT, "camera", Camera::getCameraMatrix());
 	//GLManager::loadUniform(SHADER_COLOR, "camera", Mat4());
 
 	GLManager::loadUniform(SHADER_TEXTURE, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
+	GLManager::loadUniform(SHADER_LIGHT, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 	//GLManager::loadUniform(SHADER_COLOR, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
+
+	Vec3 lightColor{ 1.0f, 0.5f, 0.5f };
+
+	GLManager::loadUniform(SHADER_LIGHT, "lightColor", lightColor);
+	GLManager::loadUniform(SHADER_TEXTURE, "lightColor", lightColor);
+	Mat4 lightTrans;
+	lightTrans = Mat::scale(lightTrans, Vec3(0.2f));
+	lightTrans = Mat::translate(lightTrans, Vec3{ 0.0f, 0.0f, -5.0f });
+	GLManager::loadUniform(SHADER_LIGHT, "model", lightTrans);
+	GLManager::loadUniform(SHADER_TEXTURE, "lightPos", Vec3{ 0.0f, 0.0f, -5.0f });
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
@@ -165,6 +186,9 @@ int main()
 		//Camera::setPosition({ camX, 0, camZ });
 		//Camera::setTarget({ 0,0,0 });
 		GLManager::loadUniform(SHADER_TEXTURE, "camera", Camera::getCameraMatrix());
+		GLManager::loadUniform(SHADER_LIGHT, "camera", Camera::getCameraMatrix());
+
+		GLManager::drawItem(MODEL_BOX2);
 
 		for (unsigned int i = 0; i < 10; i++)
 		{
@@ -174,7 +198,7 @@ int main()
 			float angle = 20.0f * i;
 			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });
 			GLManager::loadUniform(SHADER_TEXTURE, "model", trans);
-			GLManager::setTextureUniform(SHADER_TEXTURE, 2, "ourTexture", TEXTURE_TILES);
+			GLManager::setTextureUniform(SHADER_TEXTURE, 2, "ourTexture", TEXTURE_WOODEN_BOX);
 			GLManager::drawItem(MODEL_BOX);
 		}
 
