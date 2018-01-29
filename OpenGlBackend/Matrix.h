@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <cmath>
-#include "MatrixForwardDec.h"
+#include "MatrixDec.h"
 
 //namespace MatrixHidden
 //{

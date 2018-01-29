@@ -30,7 +30,7 @@ namespace Mat
 
 	Mat4 translate(const Mat4& mat, const Vec3& transform)
 	{
-		MatrixHidden::Matrix<4> ret = MatrixHidden::Matrix<4>(mat);
+		MatrixHidden::Matrix<4> ret(mat);
 		for (int i = 0; i < 3; i++)
 		{
 			ret[i][3] += transform[i];

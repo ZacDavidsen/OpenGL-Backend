@@ -41,10 +41,10 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)Matrix.h">
+    <ClInclude Include="C:\Users\davidszt\Documents\Visual Studio 2017\Projects\OpenGLBackend\OpenGlBackend\MatrixDec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)MatrixForwardDec.h">
+    <ClInclude Include="C:\Users\davidszt\Documents\Visual Studio 2017\Projects\OpenGLBackend\OpenGlBackend\Matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
