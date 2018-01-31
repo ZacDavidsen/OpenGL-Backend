@@ -5,6 +5,7 @@
 #include "shaders.h"
 #include "GLManager.h"
 #include "Matrix.h"
+#include "ShaderLoader.h"
 
 #include "Camera.h"
 
@@ -52,12 +53,12 @@ void processInput(GLFWwindow *window)
 		Camera::moveUp(1 * movementSpeed);
 
 	float mouseSensitivity = 0.05f;
-	float lastX = xPos, lastY = yPos;
+	float lastX = (float)xPos, lastY = (float)yPos;
 
 	glfwGetCursorPos(window, &xPos, &yPos);//coordinates are measured from the top-left corner of window
 	//std::cout << (char)0xd << "dx:" << xPos-lastX << (char)0x9 << "dy:" << lastY-yPos << (char)0x9;
-	Camera::rotateHorizontal(Mat::toRads((xPos - lastX)*mouseSensitivity));
-	Camera::rotateVertical(Mat::toRads((lastY - yPos)*mouseSensitivity));
+	Camera::rotateHorizontal(Mat::toRads((float)(xPos - lastX)*mouseSensitivity));
+	Camera::rotateVertical(Mat::toRads((float)(lastY - yPos)*mouseSensitivity));
 }
 
 int main()
@@ -75,7 +76,11 @@ int main()
 
 	//GLManager manager = GLManager();
 
-	GLManager::createShaderProgram(SHADER_TEXTURE, 8, textureVertexSource, textureFragmentSource);
+	char vertSource[1024], fragSource[1024];
+
+	ShaderLoad::loadProgram("simpleTexture", vertSource, fragSource, 1024);
+
+	GLManager::createShaderProgram(SHADER_TEXTURE, 8, vertSource, fragSource);
 	GLManager::addShaderAttribute(SHADER_TEXTURE, "aPos", 3, 0);
 	GLManager::addShaderAttribute(SHADER_TEXTURE, "aTexCoord", 2, 3);
 	GLManager::addShaderAttribute(SHADER_TEXTURE, "aNorm", 3, 5);
@@ -140,6 +145,7 @@ int main()
 #else
 	GLManager::addModel(MODEL_BOX, SHADER_TEXTURE, 36, vertices);
 #endif
+
 	GLManager::addModel(MODEL_BOX2, SHADER_LIGHT, 36, vertices);
 
 	Vec3 cubePositions[] = {
@@ -183,8 +189,8 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		float camX = sin(glfwGetTime()) * 10;
-		float camZ = cos(glfwGetTime()) * 10;
+		float camX = (float)sin(glfwGetTime()) * 10;
+		float camZ = (float)cos(glfwGetTime()) * 10;
 
 		processInput(window);
 		//Camera::setPosition({ camX, 0, camZ });

@@ -27,6 +27,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\davidszt\Documents\Visual Studio 2017\Projects\OpenGLBackend\OpenGlBackend\ShaderLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Model.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\davidszt\Documents\Visual Studio 2017\Projects\OpenGLBackend\OpenGlBackend\Matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\davidszt\Documents\Visual Studio 2017\Projects\OpenGLBackend\OpenGlBackend\ShaderLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
