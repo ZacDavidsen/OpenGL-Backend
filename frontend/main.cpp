@@ -139,8 +139,8 @@ int main()
 	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f
 	};
-#define ONESIDEN
-#ifdef ONESIDE
+#define DRAW_ONE_SIDEN
+#ifdef DRAW_ONE_SIDE
 	GLManager::addModel(MODEL_BOX, SHADER_TEXTURE, 6, vertices + 2 * 6 * 8);
 #else
 	GLManager::addModel(MODEL_BOX, SHADER_TEXTURE, 36, vertices);
@@ -171,7 +171,7 @@ int main()
 	GLManager::loadUniform(SHADER_LIGHT, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 	//GLManager::loadUniform(SHADER_COLOR, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 
-	Vec3 lightColor{ 0.5f, 0.5f, 0.5f };
+	Vec3 lightColor{ 1.0f, 0.0f, 1.0f };
 
 	GLManager::loadUniform(SHADER_LIGHT, "lightColor", lightColor);
 	GLManager::loadUniform(SHADER_TEXTURE, "lightColor", lightColor);
@@ -189,16 +189,19 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		float camX = (float)sin(glfwGetTime()) * 10;
-		float camZ = (float)cos(glfwGetTime()) * 10;
+		//float camX = (float)sin(glfwGetTime()) * 10;
+		//float camZ = (float)cos(glfwGetTime()) * 10;
 
 		processInput(window);
 		//Camera::setPosition({ camX, 0, camZ });
 		//Camera::setTarget({ 0,0,0 });
 		GLManager::loadUniform(SHADER_TEXTURE, "camera", Camera::getCameraMatrix());
+		GLManager::loadUniform(SHADER_TEXTURE, "cameraPos", Camera::getPosition());
+		GLManager::setTextureUniform(SHADER_TEXTURE, 2, "ourTexture", TEXTURE_WOODEN_BOX);
+
 		GLManager::loadUniform(SHADER_LIGHT, "camera", Camera::getCameraMatrix());
 
-		GLManager::drawItem(MODEL_BOX2);
+		GLManager::drawItem(SHADER_LIGHT, MODEL_BOX);
 
 		for (unsigned int i = 0; i < 10; i++)
 		{
@@ -208,9 +211,7 @@ int main()
 			float angle = 20.0f * i;
 			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });
 			GLManager::loadUniform(SHADER_TEXTURE, "model", trans);
-			GLManager::setTextureUniform(SHADER_TEXTURE, 2, "ourTexture", TEXTURE_WOODEN_BOX);
-			GLManager::loadUniform(SHADER_TEXTURE, "cameraPos", Camera::getPosition());
-			GLManager::drawItem(MODEL_BOX);
+			GLManager::drawItem(SHADER_TEXTURE, MODEL_BOX);
 		}
 
 		glfwSwapBuffers(window);

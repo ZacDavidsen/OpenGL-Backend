@@ -32,5 +32,6 @@ namespace/*class*/ GLManager
 	//void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[], unsigned int textureId);
 
 	void drawItem(int modelId);
+	void drawItem(int shaderId, int modelId);
 };
 

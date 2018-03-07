@@ -61,7 +61,7 @@ void GLManager::setTextureUniform(int shaderId, int textureSlot, std::string uni
 	glActiveTexture(GL_TEXTURE0 + textureSlot);
 	glBindTexture(GL_TEXTURE_2D, textures.at(textureId));
 	shaders.at(shaderId).loadUniform(uniformName, textureSlot);
-	glActiveTexture(0);
+	glActiveTexture(textureSlot);
 }
 
 
@@ -125,7 +125,7 @@ void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCou
 		glEnableVertexAttribArray(attr.location);
 	}
 
-	Model model(shader, VAO, verticesCount);
+	Model model(shader.getId(), VAO, verticesCount);
 	models.emplace(referenceId, model);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -184,7 +184,7 @@ void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCou
 		glEnableVertexAttribArray(attr.location);
 	}
 
-	Model model(shader, VAO, EBOTriangles * 3, true);
+	Model model(shader.getId(), VAO, EBOTriangles * 3, true);
 	models.emplace(referenceId, model);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -229,4 +229,23 @@ void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCou
 void GLManager::drawItem(int modelId)
 {
 	models.at(modelId).drawModel();
+}
+
+
+void GLManager::drawItem(int shaderId, int modelId) {
+	shaders.at(shaderId).bind();
+	Model model = models.at(modelId);
+	glBindVertexArray(model.VAO);
+
+	if (model.hasEBO)
+	{
+		glDrawElements(GL_TRIANGLES, model.drawCount, GL_UNSIGNED_INT, 0);
+	}
+	else
+	{
+		glDrawArrays(GL_TRIANGLES, 0, model.drawCount);
+	}
+
+	glBindVertexArray(0);
+	glUseProgram(0);
 }

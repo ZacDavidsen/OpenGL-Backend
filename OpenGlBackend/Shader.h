@@ -19,6 +19,8 @@ public:
 	Shader(unsigned int vertexElements, const char* vertexSource, const char* fragmentSource);
 	~Shader();
 
+	void bind() const;
+
 	unsigned int getId() const { return this->id; };
 	unsigned int getVertexElements() const { return this->vertexElements; };
 

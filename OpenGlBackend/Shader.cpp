@@ -63,6 +63,10 @@ Shader::~Shader()
 {
 }
 
+void Shader::bind() const {
+	glUseProgram(this->id);
+}
+
 void Shader::addAttributeArray(const char* name, unsigned int elements, unsigned int offset)
 {
 	int location = glGetAttribLocation(this->id, name);
