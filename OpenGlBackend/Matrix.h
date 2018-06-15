@@ -1,5 +1,6 @@
 #pragma once
-#include <iostream>
+#include <initializer_list>
+#include <string>
 #include <cmath>
 #include "MatrixDec.h"
 
@@ -200,17 +201,32 @@ namespace MatrixHidden
 			return vals + row*width;//&vals[row*width];
 		}
 
-		void print()
+		//void print()
+		//{
+		//	for (int i = 0; i < height; i++)
+		//	{
+		//		for (int j = 0; j < width-1; j++)
+		//		{
+		//			std::cout << vals[i*width + j] << ",";
+		//		}
+		//		std::cout << vals[(i+1)*width-1] << "\n";
+		//	}
+		//	std::cout << std::endl;
+		//}
+
+		std::string toString() const 
 		{
+			std::string ret;
+			
 			for (int i = 0; i < height; i++)
 			{
 				for (int j = 0; j < width-1; j++)
 				{
-					std::cout << vals[i*width + j] << ",";
+					ret.append(std::to_string(vals[i*width + j])).append(",");
 				}
-				std::cout << vals[(i+1)*width-1] << "\n";
+				ret.append(std::to_string(vals[(i+1)*width-1])).append("\n");
 			}
-			std::cout << std::endl;
+			return ret;
 		}
 	};
 
