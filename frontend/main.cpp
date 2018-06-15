@@ -47,9 +47,9 @@ void processInput(GLFWwindow *window)
 		Camera::moveLeft(1 * movementSpeed);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		Camera::moveRight(1 * movementSpeed);
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		Camera::moveDown(1 * movementSpeed);
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 		Camera::moveUp(1 * movementSpeed);
 
 	float mouseSensitivity = 0.05f;
@@ -68,7 +68,7 @@ int main()
 	{
 		return -1;
 	}
-
+	
 	glfwSetKeyCallback(window, callback);
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

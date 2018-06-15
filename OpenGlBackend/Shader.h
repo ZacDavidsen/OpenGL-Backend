@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
-#include "MatrixDec.h"
+#include "MatrixTypes.h"
 
 struct AttributeArray;
 struct Uniform;

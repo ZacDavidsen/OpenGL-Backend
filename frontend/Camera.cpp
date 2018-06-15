@@ -39,8 +39,8 @@ namespace Camera
 
 	Mat4 lookAt(Vec3 position, Vec3 direction, Vec3 up = _up)
 	{
-		Vec3 cameraRight = Mat::normalize(up.cross(direction));
-		Vec3 cameraUp = Mat::normalize(direction.cross(cameraRight));
+		Vec3 cameraRight = Mat::normalize(Mat::cross(up, direction));
+		Vec3 cameraUp = Mat::normalize(Mat::cross(direction, cameraRight));
 
 		Mat4 mat1;
 		mat1[0][0] = cameraRight[0];
@@ -86,12 +86,12 @@ namespace Camera
 
 	void moveRight(float distance)
 	{
-		_position = _position - Mat::normalize(_direction.cross(_up)) * distance;
+		_position = _position - Mat::normalize(Mat::cross(_direction, _up)) * distance;
 	}
 
 	void moveLeft(float distance)
 	{
-		_position = _position + Mat::normalize(_direction.cross(_up)) * distance;
+		_position = _position + Mat::normalize(Mat::cross(_direction, _up)) * distance;
 	}
 
 	void moveUp(float distance)
@@ -120,7 +120,7 @@ namespace Camera
 
 
 		Mat4 trans;
-		trans = Mat::rotate(trans, angle, _up.cross(Vec3{ _direction[0], 0, _direction[2] }));
+		trans = Mat::rotate(trans, angle, Mat::cross(_up, Vec3{ _direction[0], 0, _direction[2] }));
 		Vec4 temp{ _direction[0], _direction[1], _direction[2], 1 };
 		temp = trans*temp;
 		_direction[0] = temp[0];

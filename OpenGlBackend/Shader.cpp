@@ -94,7 +94,7 @@ void Shader::loadUniform(std::string name, const Mat4 data)
 	}
 
 	glUseProgram(this->id);
-	glUniformMatrix4fv(uni.location, 1, GL_TRUE, data);
+	glUniformMatrix4fv(uni.location, 1, GL_TRUE, data.getGLFormat());
 	glUseProgram(0);
 }
 
@@ -114,7 +114,7 @@ void Shader::loadUniform(std::string name, const Vec3 data)
 	}
 
 	glUseProgram(this->id);
-	glUniform3fv(uni.location, 1, data);
+	glUniform3fv(uni.location, 1, data.getGLFormat());
 	glUseProgram(0);
 }
 

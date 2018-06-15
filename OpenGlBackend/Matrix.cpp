@@ -19,13 +19,13 @@ namespace Mat
 
 	Vec3 cross(Vec3 left, Vec3 right)
 	{
-		Vec3 ret;
+		float vals[3];
 
-		ret[0] = left[1] * right[2] - left[2] * right[1];
-		ret[1] = left[2] * right[0] - left[0] * right[2];
-		ret[2] = left[0] * right[1] - left[1] * right[0];
+		vals[0] = left[1] * right[2] - left[2] * right[1];
+		vals[1] = left[2] * right[0] - left[0] * right[2];
+		vals[2] = left[0] * right[1] - left[1] * right[0];
 
-		return ret;
+		return Vec3(vals);
 	}
 
 	Mat4 translate(const Mat4& mat, const Vec3& transform)
