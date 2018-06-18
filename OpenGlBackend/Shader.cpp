@@ -14,131 +14,133 @@ uniforms [name, data type]
 //Shader::Shader()
 //{
 //}
-
-Shader::Shader(unsigned int vertexElements, const char* vertexSource, const char* fragmentSource)
+namespace GLBackend
 {
-	int success;
-	char infoLog[512];
-
-	int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexSource, NULL);
-	glCompileShader(vertexShader);
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
+	Shader::Shader(unsigned int vertexElements, const char* vertexSource, const char* fragmentSource)
 	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		int success;
+		char infoLog[512];
+
+		int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertexShader, 1, &vertexSource, NULL);
+		glCompileShader(vertexShader);
+		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		}
+
+		int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+		glCompileShader(fragmentShader);
+		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+		if (!success)
+		{
+			glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+		}
+
+		int shaderProgram = glCreateProgram();
+		glAttachShader(shaderProgram, vertexShader);
+		glAttachShader(shaderProgram, fragmentShader);
+		glLinkProgram(shaderProgram);
+		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+		if (!success)
+		{
+			glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+		}
+
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+
+		this->id = shaderProgram;
+		this->vertexElements = vertexElements;
+		this->attributes = std::vector<Attribute*>();
 	}
 
-	int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-	glCompileShader(fragmentShader);
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
+	Shader::~Shader()
 	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+		for (auto iter = this->attributes.crbegin(); iter != this->attributes.crend(); iter++) 
+		{
+			Attribute* attr = *iter;
+
+			delete attr;
+		}
+		this->attributes.clear();
+
+		for (auto iter = this->uniforms.cbegin(); iter != this->uniforms.cend(); iter++)
+		{
+			Uniform* uni = iter->second;
+
+			delete uni;
+		}
+		this->uniforms.clear();
 	}
 
-	int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
+	void Shader::bind() const {
+		glUseProgram(this->id);
+	}
+
+	void Shader::addAttribute(const char* name, unsigned int elements, unsigned int offset)
 	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+		int location = glGetAttribLocation(this->id, name);
+		addAttribute(location, name, elements, offset);
 	}
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	this->id = shaderProgram;
-	this->vertexElements = vertexElements;
-	this->attributes = std::vector<AttributeArray>();
-}
-
-Shader::~Shader()
-{
-}
-
-void Shader::bind() const {
-	glUseProgram(this->id);
-}
-
-void Shader::addAttributeArray(const char* name, unsigned int elements, unsigned int offset)
-{
-	int location = glGetAttribLocation(this->id, name);
-	this->attributes.push_back(AttributeArray{ location, elements, offset });
-}
-
-void Shader::addAttributeArray(int location, const char* name, unsigned int elements, unsigned int offset)
-{
-	this->attributes.push_back(AttributeArray{ location, elements, offset });
-}
-
-void Shader::loadUniform(std::string name, const Mat4 data)
-{
-	Uniform uni;
-	auto locationIterator = this->uniforms.find(name);
-	if (locationIterator == this->uniforms.end())
-	{//then we dont know the location, so we need to find it
-		int location = glGetUniformLocation(this->id, name.c_str());
-		uni = Uniform{ location };
-		this->uniforms.emplace(name, uni);
-	}
-	else
+	void Shader::addAttribute(int location, const char* name, unsigned int elements, unsigned int offset)
 	{
-		uni = locationIterator->second;
+		Attribute* attr = new Attribute{ location, elements, offset };
+		this->attributes.push_back(attr);
 	}
 
-	glUseProgram(this->id);
-	glUniformMatrix4fv(uni.location, 1, GL_TRUE, data.getGLFormat());
-	glUseProgram(0);
-}
-
-void Shader::loadUniform(std::string name, const Vec3 data)
-{
-	Uniform uni;
-	auto locationIterator = this->uniforms.find(name);
-	if (locationIterator == this->uniforms.end())
-	{//then we dont know the location, so we need to find it
-		int location = glGetUniformLocation(this->id, name.c_str());
-		uni = Uniform{ location };
-		this->uniforms.emplace(name, uni);
-	}
-	else
+	void Shader::loadUniform(std::string name, const Mat4 data)
 	{
-		uni = locationIterator->second;
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniformMatrix4fv(location, 1, GL_TRUE, data.getGLFormat());
+		glUseProgram(0);
 	}
 
-	glUseProgram(this->id);
-	glUniform3fv(uni.location, 1, data.getGLFormat());
-	glUseProgram(0);
-}
-
-void Shader::loadUniform(std::string name, int data)
-{
-	Uniform uni;
-	auto locationIterator = this->uniforms.find(name);
-	if (locationIterator == this->uniforms.end())
-	{//then we dont know the location, so we need to find it
-		int location = glGetUniformLocation(this->id, name.c_str());
-		uni = Uniform{ location };
-		this->uniforms.emplace(name, uni);
-	}
-	else
+	void Shader::loadUniform(std::string name, const Vec3 data)
 	{
-		uni = locationIterator->second;
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform3fv(location, 1, data.getGLFormat());
+		glUseProgram(0);
 	}
 
-	glUseProgram(this->id);
-	glUniform1i(uni.location, data);
-	glUseProgram(0);
-}
+	void Shader::loadUniform(std::string name, int data)
+	{
+		int location = getUniformLocation(name);
 
-const std::vector<AttributeArray>& Shader::getAttributes() const
-{
-	return this->attributes;
+		glUseProgram(this->id);
+		glUniform1i(location, data);
+		glUseProgram(0);
+	}
+
+	int Shader::getUniformLocation(std::string name) 
+	{
+		Uniform* uni;
+		auto locationIterator = this->uniforms.find(name);
+		if (locationIterator != this->uniforms.end())
+		{
+			uni = locationIterator->second;
+		}
+		else
+		{//then we dont know the location, so we need to find it
+			int location = glGetUniformLocation(this->id, name.c_str());
+			uni = new Uniform{ location };
+			this->uniforms.emplace(name, uni);
+		}
+		return uni->location;
+	}
+
+	const std::vector<Attribute*>& Shader::getAttributes() const
+	{
+		return this->attributes;
+	}
 }

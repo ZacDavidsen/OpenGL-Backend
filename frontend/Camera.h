@@ -1,9 +1,19 @@
 #pragma once
-//#include "Matrix.h"
-#include "MatrixTypes.h"
+#include "Matrix.h"
+//#include "MatrixTypes.h"
 
-namespace Camera
+class Camera
 {
+	Vec3 m_position;
+	Vec3 m_direction;
+	Vec3 m_up;
+
+	float m_currYAngle = 0;
+
+public:
+	Camera();
+	~Camera();
+
 	void setPosition(Vec3 newPos);
 	Vec3 getPosition();
 
@@ -29,4 +39,4 @@ namespace Camera
 
 	//this method defaults to an up vector of {0,1,0}
 	Mat4 lookAt(Vec3 position, Vec3 direction, Vec3 up);
-}
+};

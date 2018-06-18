@@ -50,7 +50,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ShaderLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\Users\davidszt\Documents\Visual Studio 2017\Projects\OpenGlBackend\OpenGlBackend\MatrixTypes.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)MatrixTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

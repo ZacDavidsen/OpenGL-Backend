@@ -4,7 +4,7 @@
 
 
 const char* colorVertexSource = 
-"#version 330 core\n\
+"#version 440 core\n\
 in vec3 aPos;\n\
 in vec3 aColor;\n\
 out vec3 color;\n\
@@ -20,7 +20,7 @@ void main()\n\
 }";
 
 const char* colorFragmentSource = 
-"#version 330 core\n\
+"#version 440 core\n\
 in vec3 color;\n\
 out vec4 FragColor;\n\
 \n\
@@ -31,7 +31,7 @@ void main()\n\
 
 
 const char* lightVertexSource =
-"#version 330 core\n\
+"#version 440 core\n\
 in vec3 aPos;\n\
 \n\
 uniform mat4 model;\n\
@@ -44,7 +44,7 @@ void main()\n\
 }";
 
 const char* lightFragmentSource =
-"#version 330 core\n\
+"#version 440 core\n\
 out vec4 FragColor;\n\
 \n\
 uniform vec3 lightColor;\n\
@@ -56,7 +56,7 @@ void main()\n\
 
 
 const char* textureVertexSource =
-"#version 330 core\n\
+"#version 440 core\n\
 in vec3 aPos;\n\
 in vec2 aTexCoord;\n\
 in vec3 aNorm;\n\
@@ -93,7 +93,7 @@ void main()\n\
 }";
 
 const char* textureFragmentSource =
-"#version 330 core\n\
+"#version 440 core\n\
 out vec4 FragColor;\n\
 \n\
 in vec2 TexCoord;\n\

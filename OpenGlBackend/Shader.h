@@ -3,49 +3,51 @@
 #include <unordered_map>
 #include "MatrixTypes.h"
 
-struct AttributeArray;
-struct Uniform;
-
-class Shader
+namespace GLBackend
 {
-	unsigned int id;
-	unsigned int vertexElements;
+	struct Attribute;
+	struct Uniform;
 
-	std::vector<AttributeArray> attributes;
-	std::unordered_map<std::string, Uniform> uniforms;
+	class Shader
+	{
+		unsigned int id;
+		unsigned int vertexElements;
 
-public:
-	//Shader();
-	Shader(unsigned int vertexElements, const char* vertexSource, const char* fragmentSource);
-	~Shader();
+		std::vector<Attribute*> attributes;
+		std::unordered_map<std::string, Uniform*> uniforms;
 
-	void bind() const;
+		int getUniformLocation(std::string name);
 
-	unsigned int getId() const { return this->id; };
-	unsigned int getVertexElements() const { return this->vertexElements; };
+	public:
+		//Shader();
+		Shader(unsigned int vertexElements, const char* vertexSource, const char* fragmentSource);
+		~Shader();
 
-	void addAttributeArray(const char* name, unsigned int elements, unsigned int offset);
-	void addAttributeArray(int location, const char* name, unsigned int elements, unsigned int offset);
-	const std::vector<AttributeArray>& getAttributes() const;
+		void bind() const;
 
-	void loadUniform(std::string name, const Mat4 data);
-	void loadUniform(std::string name, const Vec3 data);
-	void loadUniform(std::string name, int data);
+		unsigned int getId() const { return this->id; };
+		unsigned int getVertexElements() const { return this->vertexElements; };
 
-	operator unsigned int() { return this->id; };
-};
+		void addAttribute(const char* name, unsigned int elements, unsigned int offset);
+		void addAttribute(int location, const char* name, unsigned int elements, unsigned int offset);
+		const std::vector<Attribute*>& getAttributes() const;
 
-struct AttributeArray
-{
-	int location;
-	unsigned int size;
-	//dataType
-	unsigned int offset;
-};
+		void loadUniform(std::string name, const Mat4 data);
+		void loadUniform(std::string name, const Vec3 data);
+		void loadUniform(std::string name, int data);
+	};
 
-struct Uniform
-{
-	int location;
-	//unsigned int dataType;
-};
+	struct Attribute
+	{
+		int location;
+		unsigned int size;
+		//dataType
+		unsigned int offset;
+	};
 
+	struct Uniform
+	{
+		int location;
+		//unsigned int dataType;
+	};
+}

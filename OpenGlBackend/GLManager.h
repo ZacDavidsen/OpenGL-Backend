@@ -1,18 +1,24 @@
 #pragma once
 #include <unordered_map>
 #include "MatrixTypes.h"
+#include "Shader.h"
+#include "Model.h"
 
-namespace/*class*/ GLManager
+/*
+namespace
+/*/
+class//*/ 
+	GLManager
 {
-	//std::unordered_map<int, ::Shader> shaders;
-	//std::unordered_map<int, ::Model> models;
-	//std::unordered_map<int, unsigned int> textures;
+	std::unordered_map<int, GLBackend::Shader*> shaders;
+	std::unordered_map<int, GLBackend::Model*> models;
+	std::unordered_map<int, unsigned int> textures;
 
-	//std::string texturePath = "";
+	std::string texturePath = "";
 
-//public:
-//	GLManager();
-//	~GLManager();
+public:
+	GLManager();
+	~GLManager();
 
 	void createShaderProgram(int referenceId, unsigned int vertexElements, const char* vertexSource, const char* fragmentSource);
 	void addShaderAttribute(int shaderId, const char* name, unsigned int elements, unsigned int offset);

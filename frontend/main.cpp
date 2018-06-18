@@ -36,29 +36,29 @@ void callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 
 double xPos, yPos;
 
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window, Camera& camera)
 {
 	float movementSpeed = 0.05f;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		Camera::moveForward(1 * movementSpeed);
+		camera.moveForward(1 * movementSpeed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		Camera::moveBack(1 * movementSpeed);
+		camera.moveBack(1 * movementSpeed);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		Camera::moveLeft(1 * movementSpeed);
+		camera.moveLeft(1 * movementSpeed);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		Camera::moveRight(1 * movementSpeed);
+		camera.moveRight(1 * movementSpeed);
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		Camera::moveDown(1 * movementSpeed);
+		camera.moveDown(1 * movementSpeed);
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		Camera::moveUp(1 * movementSpeed);
+		camera.moveUp(1 * movementSpeed);
 
 	float mouseSensitivity = 0.05f;
 	float lastX = (float)xPos, lastY = (float)yPos;
 
 	glfwGetCursorPos(window, &xPos, &yPos);//coordinates are measured from the top-left corner of window
 	//std::cout << (char)0xd << "dx:" << xPos-lastX << (char)0x9 << "dy:" << lastY-yPos << (char)0x9;
-	Camera::rotateHorizontal(Mat::toRads((float)(xPos - lastX)*mouseSensitivity));
-	Camera::rotateVertical(Mat::toRads((float)(lastY - yPos)*mouseSensitivity));
+	camera.rotateHorizontal(Mat::toRads((float)(xPos - lastX)*mouseSensitivity));
+	camera.rotateVertical(Mat::toRads((float)(lastY - yPos)*mouseSensitivity));
 }
 
 int main()
@@ -74,28 +74,30 @@ int main()
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwGetCursorPos(window, &xPos, &yPos);
 
-	//GLManager manager = GLManager();
+	GLManager* man = new GLManager();
+	Camera camera = Camera();
 
 	char vertSource[1024], fragSource[1024];
 
 	ShaderLoad::loadProgram("simpleTexture", vertSource, fragSource, 1024);
+	
+	man->createShaderProgram(SHADER_TEXTURE, 8, vertSource, fragSource);
+	man->addShaderAttribute(SHADER_TEXTURE, "aPos", 3, 0);
+	man->addShaderAttribute(SHADER_TEXTURE, "aTexCoord", 2, 3);
+	man->addShaderAttribute(SHADER_TEXTURE, "aNorm", 3, 5);
 
-	GLManager::createShaderProgram(SHADER_TEXTURE, 8, vertSource, fragSource);
-	GLManager::addShaderAttribute(SHADER_TEXTURE, "aPos", 3, 0);
-	GLManager::addShaderAttribute(SHADER_TEXTURE, "aTexCoord", 2, 3);
-	GLManager::addShaderAttribute(SHADER_TEXTURE, "aNorm", 3, 5);
+	//man->createShaderProgram(SHADER_COLOR, 6, colorVertexSource, colorFragmentSource);
+	//man->addShaderAttribute(SHADER_COLOR, "aPos", 3, 0);
+	//man->addShaderAttribute(SHADER_COLOR, "aColor", 3, 3);
 
-	//GLManager::createShaderProgram(SHADER_COLOR, 6, colorVertexSource, colorFragmentSource);
-	//GLManager::addShaderAttribute(SHADER_COLOR, "aPos", 3, 0);
-	//GLManager::addShaderAttribute(SHADER_COLOR, "aColor", 3, 3);
+	man->createShaderProgram(SHADER_LIGHT, 8, lightVertexSource, lightFragmentSource);
+	man->addShaderAttribute(SHADER_LIGHT, "aPos", 3, 0);
 
-	GLManager::createShaderProgram(SHADER_LIGHT, 8, lightVertexSource, lightFragmentSource);
-	GLManager::addShaderAttribute(SHADER_LIGHT, "aPos", 3, 0);
-
-	GLManager::loadTexture(TEXTURE_WOODEN_BOX, "container.jpg");
-	GLManager::loadTexture(TEXTURE_TILES, "terrainTiles.png");
+	man->loadTexture(TEXTURE_WOODEN_BOX, "container.jpg");
+	man->loadTexture(TEXTURE_TILES, "terrainTiles.png");
 
 	float vertices[] = {
+	//position			  //texture	   //color
 	//back side
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
 	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f, -1.0f,
@@ -141,12 +143,12 @@ int main()
 	};
 #define DRAW_ONE_SIDEN
 #ifdef DRAW_ONE_SIDE
-	GLManager::addModel(MODEL_BOX, SHADER_TEXTURE, 6, vertices + 2 * 6 * 8);
+	man->addModel(MODEL_BOX, SHADER_TEXTURE, 6, vertices + 2 * 6 * 8);
 #else
-	GLManager::addModel(MODEL_BOX, SHADER_TEXTURE, 36, vertices);
+	man->addModel(MODEL_BOX, SHADER_TEXTURE, 36, vertices);
 #endif
 
-	GLManager::addModel(MODEL_BOX2, SHADER_LIGHT, 36, vertices);
+	man->addModel(MODEL_BOX2, SHADER_LIGHT, 36, vertices);
 
 	Vec3 cubePositions[] = {
 		Vec3{0.0f,  0.0f,  0.0f},
@@ -161,25 +163,25 @@ int main()
 		Vec3{-1.3f,  1.0f, -1.5f}
 	};
 
-	Camera::setPosition({ 0.0f, 0.0f, 2.0f });
+	camera.setPosition({ 0.0f, 0.0f, 3.0f });
 
-	GLManager::loadUniform(SHADER_TEXTURE, "camera", Camera::getCameraMatrix());
-	GLManager::loadUniform(SHADER_LIGHT, "camera", Camera::getCameraMatrix());
-	//GLManager::loadUniform(SHADER_COLOR, "camera", Mat4());
+	man->loadUniform(SHADER_TEXTURE, "camera", camera.getCameraMatrix());
+	man->loadUniform(SHADER_LIGHT, "camera", camera.getCameraMatrix());
+	//man->loadUniform(SHADER_COLOR, "camera", Mat4());
 
-	GLManager::loadUniform(SHADER_TEXTURE, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
-	GLManager::loadUniform(SHADER_LIGHT, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
-	//GLManager::loadUniform(SHADER_COLOR, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
+	man->loadUniform(SHADER_TEXTURE, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
+	man->loadUniform(SHADER_LIGHT, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
+	//man->loadUniform(SHADER_COLOR, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 
 	Vec3 lightColor{ 1.0f, 0.0f, 1.0f };
 
-	GLManager::loadUniform(SHADER_LIGHT, "lightColor", lightColor);
-	GLManager::loadUniform(SHADER_TEXTURE, "lightColor", lightColor);
+	man->loadUniform(SHADER_LIGHT, "lightColor", lightColor);
+	man->loadUniform(SHADER_TEXTURE, "lightColor", lightColor);
 	Mat4 lightTrans;
 	lightTrans = Mat::scale(lightTrans, Vec3(0.2f));
 	lightTrans = Mat::translate(lightTrans, Vec3{ 0.0f, 0.0f, -5.0f });
-	GLManager::loadUniform(SHADER_LIGHT, "model", lightTrans);
-	GLManager::loadUniform(SHADER_TEXTURE, "lightPos", Vec3{ 0.0f, 0.0f, -5.0f });
+	man->loadUniform(SHADER_LIGHT, "model", lightTrans);
+	man->loadUniform(SHADER_TEXTURE, "lightPos", Vec3{ 0.0f, 0.0f, -5.0f });
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
@@ -192,16 +194,16 @@ int main()
 		//float camX = (float)sin(glfwGetTime()) * 10;
 		//float camZ = (float)cos(glfwGetTime()) * 10;
 
-		processInput(window);
+		processInput(window, camera);
 		//Camera::setPosition({ camX, 0, camZ });
 		//Camera::setTarget({ 0,0,0 });
-		GLManager::loadUniform(SHADER_TEXTURE, "camera", Camera::getCameraMatrix());
-		GLManager::loadUniform(SHADER_TEXTURE, "cameraPos", Camera::getPosition());
-		GLManager::setTextureUniform(SHADER_TEXTURE, 2, "ourTexture", TEXTURE_WOODEN_BOX);
+		man->loadUniform(SHADER_TEXTURE, "camera", camera.getCameraMatrix());
+		man->loadUniform(SHADER_TEXTURE, "cameraPos", camera.getPosition());
+		man->setTextureUniform(SHADER_TEXTURE, 2, "ourTexture", TEXTURE_WOODEN_BOX);
 
-		GLManager::loadUniform(SHADER_LIGHT, "camera", Camera::getCameraMatrix());
+		man->loadUniform(SHADER_LIGHT, "camera", camera.getCameraMatrix());
 
-		GLManager::drawItem(SHADER_LIGHT, MODEL_BOX);
+		man->drawItem(SHADER_LIGHT, MODEL_BOX);
 
 		for (unsigned int i = 0; i < 10; i++)
 		{
@@ -210,13 +212,15 @@ int main()
 			trans = Mat::translate(trans, cubePositions[i]);
 			float angle = 20.0f * i;
 			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });
-			GLManager::loadUniform(SHADER_TEXTURE, "model", trans);
-			GLManager::drawItem(SHADER_TEXTURE, MODEL_BOX);
+			man->loadUniform(SHADER_TEXTURE, "model", trans);
+			man->drawItem(SHADER_TEXTURE, MODEL_BOX);
 		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	delete man;
 
 	glfwTerminate();
 	return 0;
