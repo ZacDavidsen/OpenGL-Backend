@@ -27,44 +27,45 @@ namespace Mat
 
 
 
-	template<unsigned int height, unsigned int width>
+	template<unsigned int height, unsigned int width, typename T>
 	class Matrix
 	{
+		static_assert(std::is_fundamental_v<T>, "Matrix and Vector can only use primitive types!");
 
-		template<unsigned int height, unsigned int width> friend class Matrix;
+		template<unsigned int height, unsigned int width, typename T> friend class Matrix;
 
 	protected:
 
-		float vals[height*width];
+		T vals[height*width];
 
 	public:
-		Matrix(float diagVal = 1);
-		Matrix(float values[]);
-		Matrix(std::initializer_list<float> values);
+		Matrix(T diagVal = 1);
+		Matrix(T values[]);
+		Matrix(std::initializer_list<T> values);
 		Matrix(const Matrix &mat);
 		~Matrix();
 
-		Matrix<height, width> operator+(const Matrix<height, width>& right) const;
-		Matrix<height, width> operator-() const;
-		Matrix<height, width> operator-(const Matrix<height, width>& right) const;
-		Matrix<height, width> operator/(float num) const;
-		Matrix<height, width> operator*(float num) const;
+		Matrix<height, width, T> operator+(const Matrix<height, width, T>& right) const;
+		Matrix<height, width, T> operator-() const;
+		Matrix<height, width, T> operator-(const Matrix<height, width, T>& right) const;
+		Matrix<height, width, T> operator/(T num) const;
+		Matrix<height, width, T> operator*(T num) const;
 		template<unsigned int newWidth>
-			Matrix<height, newWidth> operator*(const Matrix<width, newWidth> &right) const;
+			Matrix<height, newWidth, T> operator*(const Matrix<width, newWidth, T> &right) const;
 
-		float* operator[](int row);
+		T* operator[](int row);
 
 		std::string toString() const;
-		const float* getGLFormat() const;
+		const T* getGLFormat() const;
 	};
 
 	//Totally not sure if this class is worth it, the only changed functionality is the 
 	//subscript operator, and everything else needs overloaded to return the correct types...
-	template<unsigned int length>
-	class Vector : public Matrix<length, 1>
+	template<unsigned int length, typename T>
+	class Vector : public Matrix<length, 1, T>
 	{
 	public:
-		Vector(float initVal = 0)
+		Vector(T initVal = 0) : Matrix(0)
 		{
 			for (int i = 0; i < length; i++)
 			{
@@ -72,16 +73,16 @@ namespace Mat
 			}
 		}
 
-		Vector(float values[]): Matrix(values){}
-		Vector(std::initializer_list<float> values): Matrix(values){}
+		Vector(T values[]): Matrix(values){}
+		Vector(std::initializer_list<T> values): Matrix(values){}
 		Vector(const Matrix &mat): Matrix(mat){}
 
-		float& operator[](int index) 
+		T& operator[](int index)
 		{ 
 			return vals[index]; 
 		}
 
-		float operator[](int index) const
+		T operator[](int index) const
 		{
 			return vals[index];
 		}
@@ -89,8 +90,13 @@ namespace Mat
 
 
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width>::Matrix(float diagVal)
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T>::Matrix() 
+	{
+	}
+
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T>::Matrix(T diagVal)
 	{
 		for (int i = 0; i < height; i++)
 		{
@@ -107,9 +113,9 @@ namespace Mat
 			}
 		}
 	}
-
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width>::Matrix(float values[])
+	
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T>::Matrix(T values[])
 	{
 		for (int i = 0; i < height*width; i++)
 		{
@@ -117,8 +123,8 @@ namespace Mat
 		}
 	}
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width>::Matrix(std::initializer_list<float> values)
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T>::Matrix(std::initializer_list<T> values)
 	{
 		if (values.size() != height * width)
 		{
@@ -133,8 +139,8 @@ namespace Mat
 		}
 	}
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width>::Matrix(const Matrix &mat)
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T>::Matrix(const Matrix &mat)
 	{
 		for (int i = 0; i < height*width; i++)
 		{
@@ -142,15 +148,15 @@ namespace Mat
 		}
 	}
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width>::~Matrix()
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T>::~Matrix()
 	{
 	}
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width> Matrix<height, width>::operator+(const Matrix<height, width> &right) const
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T> Matrix<height, width, T>::operator+(const Matrix<height, width, T> &right) const
 	{
-		float newVals[height*width];
+		T newVals[height*width];
 		for (int i = 0; i < height*width; i++)
 		{
 			newVals[i] = this->vals[i] + right.vals[i];
@@ -158,10 +164,10 @@ namespace Mat
 		return Matrix(newVals);
 	}
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width> Matrix<height, width>::operator-() const
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T> Matrix<height, width, T>::operator-() const
 	{
-		float newVals[height*width];
+		T newVals[height*width];
 		for (int i = 0; i < height*width; i++)
 		{
 			newVals[i] = -this->vals[i];
@@ -169,10 +175,10 @@ namespace Mat
 		return Matrix(newVals);
 	}
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width> Matrix<height, width>::operator-(const Matrix<height, width> &right) const
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T> Matrix<height, width, T>::operator-(const Matrix<height, width, T> &right) const
 	{
-		float newVals[height*width];
+		T newVals[height*width];
 		for (int i = 0; i < height*width; i++)
 		{
 			newVals[i] = this->vals[i] - right.vals[i];
@@ -180,11 +186,11 @@ namespace Mat
 		return Matrix(newVals);
 	}
 
-	template<unsigned int height, unsigned int width>
+	template<unsigned int height, unsigned int width, typename T>
 	template<unsigned int newWidth>
-	Matrix<height, newWidth> Matrix<height, width>::operator*(const Matrix<width, newWidth> &right) const
+	Matrix<height, newWidth, T> Matrix<height, width, T>::operator*(const Matrix<width, newWidth, T> &right) const
 	{
-		float newVals[height*newWidth];
+		T newVals[height*newWidth];
 
 		for (int row = 0; row < height; row++)
 		{
@@ -199,45 +205,45 @@ namespace Mat
 				}
 			}
 		}
-		return Matrix<height, newWidth>(newVals);
+		return Matrix<height, newWidth, T>(newVals);
 	}
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width> operator*(float num, const Matrix<height, width> &mat)
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T> operator*(float num, const Matrix<height, width, T> &mat)
 	{
 		return mat * num;
 	}
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width> Matrix<height, width>::operator*(float num) const
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T> Matrix<height, width, T>::operator*(T num) const
 	{
-		float newVals[height*width];
+		T newVals[height*width];
 		for (int i = 0; i < height*width; i++)
 		{
 			newVals[i] = this->vals[i] * num;
 		}
-		return Matrix<height, width>(newVals);
+		return Matrix<height, width, T>(newVals);
 	}
 
-	template<unsigned int height, unsigned int width>
-	Matrix<height, width> Matrix<height, width>::operator/(float num) const
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T> Matrix<height, width, T>::operator/(T num) const
 	{
-		float newVals[height*width];
+		T newVals[height*width];
 		for (int i = 0; i < height*width; i++)
 		{
 			newVals[i] = this->vals[i] / num;
 		}
-		return Matrix<height, width>(newVals);
+		return Matrix<height, width, T>(newVals);
 	}
 
-	template<unsigned int height, unsigned int width>
-	float* Matrix<height, width>::operator[](int row)
+	template<unsigned int height, unsigned int width, typename T>
+	T* Matrix<height, width, T>::operator[](int row)
 	{
 		return this->vals + row * width;
 	}
 
-	template<unsigned int height, unsigned int width>
-	std::string Matrix<height, width>::toString() const
+	template<unsigned int height, unsigned int width, typename T>
+	std::string Matrix<height, width, T>::toString() const
 	{
 		std::string ret;
 
@@ -252,8 +258,8 @@ namespace Mat
 		return ret;
 	}
 
-	template<unsigned int height, unsigned int width>
-	const float* Matrix<height, width>::getGLFormat() const {
+	template<unsigned int height, unsigned int width, typename T>
+	const T* Matrix<height, width, T>::getGLFormat() const {
 		return this->vals;
 	}
 }

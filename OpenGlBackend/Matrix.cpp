@@ -58,7 +58,7 @@ namespace Mat
 		Vec3 axis(normalize(v));
 		Vec3 temp((1.0f - c) * axis);
 
-		Mat4 Rotate = Mat4();
+		Mat4 Rotate;
 		Rotate[0][0] = c + temp[0] * axis[0];
 		Rotate[0][1] = temp[0] * axis[1] + s * axis[2];
 		Rotate[0][2] = temp[0] * axis[2] - s * axis[1];
@@ -71,7 +71,7 @@ namespace Mat
 		Rotate[2][1] = temp[2] * axis[1] - s * axis[0];
 		Rotate[2][2] = c + temp[2] * axis[2];
 
-		return m*Rotate;
+		return m * Rotate;
 	}
 
 	float toRads(float in)

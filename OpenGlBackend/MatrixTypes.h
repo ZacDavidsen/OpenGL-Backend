@@ -2,10 +2,10 @@
 
 namespace Mat
 {
-	template<unsigned int height, unsigned int width = height>
+	template<unsigned int height, unsigned int width = height, typename T = float>
 	class Matrix;
 
-	template<unsigned int length>
+	template<unsigned int length, typename T = float>
 	class Vector;
 }
 

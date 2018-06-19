@@ -6,9 +6,9 @@
 
 
 Camera::Camera() {
-	m_position = Vec3{ 0,0,0 };
-	m_direction = Vec3{ 0,0,1 };
-	m_up = Vec3{ 0,1,0 };
+	//m_position = Vec3{ 0,0,0 };
+	//m_direction = Vec3{ 0,0,1 };
+	//m_up = Vec3{ 0,1,0 };
 }
 
 Camera::~Camera() {

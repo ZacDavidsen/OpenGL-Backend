@@ -39,6 +39,8 @@ double xPos, yPos;
 void processInput(GLFWwindow *window, Camera& camera)
 {
 	float movementSpeed = 0.05f;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		movementSpeed *= 0.25;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.moveForward(1 * movementSpeed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -68,7 +70,7 @@ int main()
 	{
 		return -1;
 	}
-	
+
 	glfwSetKeyCallback(window, callback);
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
