@@ -173,7 +173,7 @@ int main()
 	man->loadUniform(SHADER_LIGHT, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 	//man->loadUniform(SHADER_COLOR, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 
-	Vec3 lightColor{ 1.0f, 0.0f, 1.0f };
+	Vec3 lightColor{ 10.0f, 0.0f, 1.0f };
 
 	man->loadUniform(SHADER_LIGHT, "lightColor", lightColor);
 	man->loadUniform(SHADER_TEXTURE, "lightColor", lightColor);

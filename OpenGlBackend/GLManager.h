@@ -1,14 +1,14 @@
 #pragma once
 #include <unordered_map>
 #include "MatrixTypes.h"
-#include "Shader.h"
-#include "Model.h"
 
-/*
-namespace
-/*/
-class//*/ 
-	GLManager
+namespace GLBackend
+{
+	class Shader;
+	class Model;
+}
+
+class GLManager
 {
 	std::unordered_map<int, GLBackend::Shader*> shaders;
 	std::unordered_map<int, GLBackend::Model*> models;

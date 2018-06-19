@@ -2,8 +2,8 @@
 #include <glad\glad.h>
 #include <iostream>
 
-//#include "Shader.h"
-//#include "Model.h"
+#include "Shader.h"
+#include "Model.h"
 #include "Matrix.h"
 
 #define STB_IMAGE_IMPLEMENTATION

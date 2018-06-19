@@ -1,8 +1,8 @@
-#version 330 core
+#version 440 core
 out vec4 FragColor;
 
 in vec2 TexCoord;
-in vec3 lightCol;
+in vec3 lightBase;
 in vec3 FragPos;
 in vec3 norm;
 
@@ -24,7 +24,7 @@ void main()
 	vec3 reflectDir = reflect(normalize(FragPos - lightPos), norm);
 
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 256);
-	vec3 specular = specStrength * spec * lightColor;
+	vec3 specular = specStrength * spec * clamp(lightColor, 0, 1);
 
-	FragColor = texel * vec4((lightCol + specular),1);
+	FragColor = texel * vec4((lightBase + specular),1);
 }

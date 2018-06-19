@@ -18,9 +18,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -28,6 +25,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)ShaderLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)GLAD\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)MatrixTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

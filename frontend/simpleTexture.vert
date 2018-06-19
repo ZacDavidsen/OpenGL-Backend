@@ -1,10 +1,10 @@
-#version 330 core
+#version 440 core
 in vec3 aPos;
 in vec2 aTexCoord;
 in vec3 aNorm;
 
 out vec2 TexCoord;
-out vec3 lightCol;
+out vec3 lightBase;
 out vec3 FragPos;
 out vec3 norm;
 
@@ -24,12 +24,12 @@ void main()
 	vec3 Normal = vec3(model * vec4(aNorm, 1.0) - translate);
 
 	float ambientStrength = 0.1;
-	vec3 ambient = ambientStrength * lightColor;
+	vec3 ambient = ambientStrength * clamp(lightColor,0,1);
 
 	norm = normalize(Normal);
 	vec3 lightDir = normalize(lightPos - FragPos);
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = diff * lightColor;
+	vec3 diffuse = diff * clamp(lightColor,0,1);
 
-	lightCol = ambient + diffuse;
+	lightBase = (ambient + diffuse);
 }

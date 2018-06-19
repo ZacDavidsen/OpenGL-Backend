@@ -7,9 +7,11 @@
 namespace Mat
 {
 	template<unsigned int length>
-	MatrixHidden::Vector<length> normalize(const MatrixHidden::Vector<length> &vec);
+	Mat::Vector<length> normalize(const Mat::Vector<length> &vec);
 
 	Vec3 cross(Vec3 left, Vec3 right);
+	template<unsigned int length>
+	Mat::Vector<length> dot(Mat::Vector<length> left, Mat::Vector<length> right);
 
 	Mat4 translate(const Mat4 &mat, const Vec3 &transform);
 	Mat4 scale(const Mat4 &mat, const Vec3 &transform);
@@ -23,10 +25,8 @@ namespace Mat
 	Mat4 orthographic(float left, float right, float top, float bottom, float nearz, float farz);
 	Mat4 orthographic(float width, float height, float nearz, float farz);
 
-};
 
-namespace MatrixHidden
-{
+
 	template<unsigned int height, unsigned int width>
 	class Matrix
 	{
@@ -85,17 +85,6 @@ namespace MatrixHidden
 		{
 			return vals[index];
 		}
-
-		float dotProduct(const Vector &right)
-		{
-			float total = 0;
-			for (int i = 0; i < length; i++)
-			{
-				total += this->vals[i] * right.vals[i];
-			}
-			return total;
-		}
-
 	};
 
 
