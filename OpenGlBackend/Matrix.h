@@ -2,6 +2,8 @@
 #include <initializer_list>
 #include <string>
 #include <cmath>
+#include <sstream>
+
 #include "MatrixTypes.h"
 
 namespace Mat
@@ -56,6 +58,8 @@ namespace Mat
 		T* operator[](int row);
 
 		std::string toString() const;
+
+		//Returns a T[] representing the matrix, in row-major order
 		const T* getGLFormat() const;
 	};
 
@@ -65,14 +69,7 @@ namespace Mat
 	class Vector : public Matrix<length, 1, T>
 	{
 	public:
-		Vector(T initVal = 0) : Matrix(0)
-		{
-			for (int i = 0; i < length; i++)
-			{
-				vals[i] = initVal;
-			}
-		}
-
+		Vector(T initVal = 0): Matrix(initVal){}
 		Vector(T values[]): Matrix(values){}
 		Vector(std::initializer_list<T> values): Matrix(values){}
 		Vector(const Matrix &mat): Matrix(mat){}
@@ -82,7 +79,7 @@ namespace Mat
 			return vals[index]; 
 		}
 
-		T operator[](int index) const
+		const T operator[](int index) const
 		{
 			return vals[index];
 		}
@@ -90,10 +87,10 @@ namespace Mat
 
 
 
-	template<unsigned int height, unsigned int width, typename T>
-	Matrix<height, width, T>::Matrix() 
-	{
-	}
+	//template<unsigned int height, unsigned int width, typename T>
+	//Matrix<height, width, T>::Matrix() 
+	//{
+	//}
 
 	template<unsigned int height, unsigned int width, typename T>
 	Matrix<height, width, T>::Matrix(T diagVal)
@@ -102,7 +99,7 @@ namespace Mat
 		{
 			for (int j = 0; j < width; j++)
 			{
-				if (i == j)
+				if (i == j || width == 1)
 				{
 					vals[i*width + j] = diagVal;
 				}
@@ -131,7 +128,7 @@ namespace Mat
 			throw "Mismatch of data length!";
 		}
 
-		const float *begin = values.begin();
+		const T *begin = values.begin();
 
 		for (int i = 0; i < height*width; i++)
 		{
@@ -196,7 +193,7 @@ namespace Mat
 		{
 			for (int col = 0; col < newWidth; col++)
 			{
-				float *val = &newVals[row*newWidth + col];
+				T *val = newVals + row*newWidth + col;
 				*val = 0;
 
 				for (int i = 0; i < width; i++)
@@ -209,7 +206,7 @@ namespace Mat
 	}
 
 	template<unsigned int height, unsigned int width, typename T>
-	Matrix<height, width, T> operator*(float num, const Matrix<height, width, T> &mat)
+	Matrix<height, width, T> operator*(T num, const Matrix<height, width, T> &mat)
 	{
 		return mat * num;
 	}
@@ -245,17 +242,17 @@ namespace Mat
 	template<unsigned int height, unsigned int width, typename T>
 	std::string Matrix<height, width, T>::toString() const
 	{
-		std::string ret;
+		std::stringstream ret = std::stringstream();
 
 		for (int i = 0; i < height; i++)
 		{
 			for (int j = 0; j < width - 1; j++)
 			{
-				ret.append(std::to_string(vals[i*width + j])).append(",");
+				ret << (vals[i*width + j]) << (",");
 			}
-			ret.append(std::to_string(vals[(i + 1)*width - 1])).append("\n");
+			ret << (vals[(i + 1)*width - 1]) << ("\n");
 		}
-		return ret;
+		return ret.str();
 	}
 
 	template<unsigned int height, unsigned int width, typename T>

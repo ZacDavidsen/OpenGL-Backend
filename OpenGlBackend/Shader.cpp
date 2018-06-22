@@ -95,7 +95,32 @@ namespace GLBackend
 		this->attributes.push_back(attr);
 	}
 
-	void Shader::loadUniform(std::string name, const Mat4 data)
+	const std::vector<Attribute*>& Shader::getAttributes() const
+	{
+		return this->attributes;
+	}
+
+
+
+	void Shader::setUniform(std::string name, const Mat2 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniformMatrix2fv(location, 1, GL_TRUE, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	void Shader::setUniform(std::string name, const Mat3 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniformMatrix3fv(location, 1, GL_TRUE, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	void Shader::setUniform(std::string name, const Mat4 data)
 	{
 		int location = getUniformLocation(name);
 
@@ -104,7 +129,47 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::loadUniform(std::string name, const Vec3 data)
+
+
+	void Shader::setUniform(std::string name, const Vec2 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform2fv(location, 1, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	void Shader::setUniform(std::string name, const iVec2 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform2iv(location, 1, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	void Shader::setUniform(std::string name, const uVec2 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform2uiv(location, 1, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	//void Shader::setUniform(std::string name, const bVec2 data)
+	//{
+	//	int location = getUniformLocation(name);
+
+	//	glUseProgram(this->id);
+	//	glUniform2iv(location, 1, data.getGLFormat());
+	//	glUseProgram(0);
+	//}
+
+
+
+	void Shader::setUniform(std::string name, const Vec3 data)
 	{
 		int location = getUniformLocation(name);
 
@@ -113,7 +178,101 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::loadUniform(std::string name, int data)
+	void Shader::setUniform(std::string name, const iVec3 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform3iv(location, 1, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	void Shader::setUniform(std::string name, const uVec3 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform3uiv(location, 1, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	//void Shader::setUniform(std::string name, const bVec3 data)
+	//{
+	//	int location = getUniformLocation(name);
+
+	//	glUseProgram(this->id);
+	//	glUniform3iv(location, 1, data.getGLFormat());
+	//	glUseProgram(0);
+	//}
+
+
+
+	void Shader::setUniform(std::string name, const Vec4 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform4fv(location, 1, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	void Shader::setUniform(std::string name, const iVec4 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform4iv(location, 1, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	void Shader::setUniform(std::string name, const uVec4 data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform4uiv(location, 1, data.getGLFormat());
+		glUseProgram(0);
+	}
+
+	//void Shader::setUniform(std::string name, const bVec4 data)
+	//{
+	//	int location = getUniformLocation(name);
+
+	//	glUseProgram(this->id);
+	//	glUniform4iv(location, 1, data.getGLFormat());
+	//	glUseProgram(0);
+	//}
+
+
+
+	void Shader::setUniform(std::string name, float data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform1f(location, data);
+		glUseProgram(0);
+	}
+	
+	void Shader::setUniform(std::string name, int data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform1i(location, data);
+		glUseProgram(0);
+	}
+
+	void Shader::setUniform(std::string name, unsigned int data)
+	{
+		int location = getUniformLocation(name);
+
+		glUseProgram(this->id);
+		glUniform1ui(location, data);
+		glUseProgram(0);
+	}
+
+	void Shader::setUniform(std::string name, bool data)
 	{
 		int location = getUniformLocation(name);
 
@@ -137,10 +296,5 @@ namespace GLBackend
 			this->uniforms.emplace(name, uni);
 		}
 		return uni->location;
-	}
-
-	const std::vector<Attribute*>& Shader::getAttributes() const
-	{
-		return this->attributes;
 	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include "MatrixTypes.h"
+#include "Shader.h"
 
 namespace GLBackend
 {
@@ -27,8 +28,10 @@ public:
 	void setTextureFolder(std::string path);
 	void loadTexture(int referenceId, std::string fileName);
 
-	void loadUniform(int shaderId, std::string name, Mat4 data);
-	void loadUniform(int shaderId, std::string name, Vec3 data);
+	template<unsigned int height, unsigned int width, typename T>
+	void loadUniform(int shaderId, std::string name, const Mat::Matrix<height, width, T> data);
+	template<unsigned int height, typename T>
+	void loadUniform(int shaderId, std::string name, const Mat::Vector<height, T> data);
 
 	void setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId);
 
@@ -40,4 +43,18 @@ public:
 	void drawItem(int modelId);
 	void drawItem(int shaderId, int modelId);
 };
+
+
+
+template<unsigned int height, unsigned int width, typename T>
+void GLManager::loadUniform(int shaderId, std::string name, const Mat::Matrix<height, width, T> data)
+{
+	shaders.at(shaderId)->setUniform(name, data);
+}
+
+template<unsigned int height, typename T>
+void GLManager::loadUniform(int shaderId, std::string name, const Mat::Vector<height, T> data)
+{
+	shaders.at(shaderId)->setUniform(name, data);
+}
 

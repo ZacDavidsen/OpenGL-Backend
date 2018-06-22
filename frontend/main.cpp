@@ -210,7 +210,6 @@ int main()
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			Mat4 trans;
-			//trans = Mat::translate(trans, Vec3{ 0.0f, 0.0f, -3.0f });
 			trans = Mat::translate(trans, cubePositions[i]);
 			float angle = 20.0f * i;
 			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });
