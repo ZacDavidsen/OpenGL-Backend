@@ -32,9 +32,30 @@ namespace GLBackend
 		void addAttribute(int location, const char* name, unsigned int elements, unsigned int offset);
 		const std::vector<Attribute*>& getAttributes() const;
 
-		void loadUniform(std::string name, const Mat4 data);
-		void loadUniform(std::string name, const Vec3 data);
-		void loadUniform(std::string name, int data);
+		void setUniform(std::string name, const Mat2 data);
+		void setUniform(std::string name, const Mat3 data);
+		void setUniform(std::string name, const Mat4 data);
+
+		void setUniform(std::string name, const Vec2 data);
+		void setUniform(std::string name, const iVec2 data);
+		void setUniform(std::string name, const uVec2 data);
+		//void setUniform(std::string name, const bVec2 data);
+
+		void setUniform(std::string name, const Vec3 data);
+		void setUniform(std::string name, const iVec3 data);
+		void setUniform(std::string name, const uVec3 data);
+		//void setUniform(std::string name, const bVec3 data);
+
+		void setUniform(std::string name, const Vec4 data);
+		void setUniform(std::string name, const iVec4 data);
+		void setUniform(std::string name, const uVec4 data);
+		//void setUniform(std::string name, const bVec4 data);
+
+
+		void setUniform(std::string name, float data);
+		void setUniform(std::string name, int data);
+		void setUniform(std::string name, unsigned int data);
+		void setUniform(std::string name, bool data);
 	};
 
 	struct Attribute

@@ -48,6 +48,8 @@ double xPos, yPos;
 void processInput(GLFWwindow *window, Camera& camera)
 {
 	float movementSpeed = 0.05f;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		movementSpeed *= 0.25;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		camera.moveForward(1 * movementSpeed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -77,7 +79,7 @@ int main()
 	{
 		return -1;
 	}
-	
+
 	glfwSetKeyCallback(window, callback);
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -253,7 +255,6 @@ int main()
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			Mat4 trans;
-			//trans = Mat::translate(trans, Vec3{ 0.0f, 0.0f, -3.0f });
 			trans = Mat::translate(trans, cubePositions[i]);
 			float angle = 20.0f * i;
 			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });

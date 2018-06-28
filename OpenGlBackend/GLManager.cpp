@@ -65,24 +65,14 @@ void GLManager::addShaderAttribute(int shaderId, int location, const char* name,
 }
 
 
-void GLManager::loadUniform(int shaderId, std::string name, const Mat4 data)
-{
-	shaders.at(shaderId)->loadUniform(name, data);
-}
-
-void GLManager::loadUniform(int shaderId, std::string name, const Vec3 data)
-{
-	shaders.at(shaderId)->loadUniform(name, data);
-}
 
 void GLManager::setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId)
 {
 	glActiveTexture(GL_TEXTURE0 + textureSlot);
 	glBindTexture(GL_TEXTURE_2D, textures.at(textureId));
-	shaders.at(shaderId)->loadUniform(uniformName, textureSlot);
+	shaders.at(shaderId)->setUniform(uniformName, textureSlot);
 	glActiveTexture(textureSlot);
 }
-
 
 void GLManager::setTextureFolder(std::string path)
 {
