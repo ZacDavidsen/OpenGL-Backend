@@ -92,6 +92,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)OpenGlBackend\GLFW\x86\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>echo D | xcopy $(ProjectDir)Resources $(TargetDir)Resources /s /e /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -139,10 +142,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaders.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="simpleTexture.frag" />
-    <None Include="simpleTexture.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,10 @@
 #include <glad\glad.h>
 #include <GLFW\Glfw3.h>
+
 #include <iostream>
+#include <sstream>
+#include <string>
+
 #include "window.h"
 #include "shaders.h"
 #include "GLManager.h"
@@ -9,8 +13,11 @@
 
 #include "Camera.h"
 
+#include "ModelLoader.h"
+
 enum Shaders
 {
+	SHADER_DEFAULT,
 	SHADER_COLOR,
 	SHADER_LIGHT,
 	SHADER_TEXTURE
@@ -19,7 +26,9 @@ enum Shaders
 enum Models
 {
 	MODEL_BOX,
-	MODEL_BOX2
+	MODEL_BOX2,
+	MODEL_BOTTLE,
+	MODEL_HOUSE
 };
 
 enum Textures
@@ -77,27 +86,37 @@ int main()
 	GLManager* man = new GLManager();
 	Camera camera = Camera();
 
+
 	char vertSource[1024], fragSource[1024];
 
-	ShaderLoad::loadProgram("simpleTexture", vertSource, fragSource, 1024);
+	ShaderLoad::loadProgram("Resources/simpleTexture", vertSource, fragSource, 1024);
 	
 	man->createShaderProgram(SHADER_TEXTURE, 8, vertSource, fragSource);
 	man->addShaderAttribute(SHADER_TEXTURE, "aPos", 3, 0);
 	man->addShaderAttribute(SHADER_TEXTURE, "aTexCoord", 2, 3);
 	man->addShaderAttribute(SHADER_TEXTURE, "aNorm", 3, 5);
 
+
 	//man->createShaderProgram(SHADER_COLOR, 6, colorVertexSource, colorFragmentSource);
 	//man->addShaderAttribute(SHADER_COLOR, "aPos", 3, 0);
 	//man->addShaderAttribute(SHADER_COLOR, "aColor", 3, 3);
 
+
 	man->createShaderProgram(SHADER_LIGHT, 8, lightVertexSource, lightFragmentSource);
 	man->addShaderAttribute(SHADER_LIGHT, "aPos", 3, 0);
 
-	man->loadTexture(TEXTURE_WOODEN_BOX, "container.jpg");
-	man->loadTexture(TEXTURE_TILES, "terrainTiles.png");
+
+	ShaderLoad::loadProgram("Resources/default", vertSource, fragSource, 1024);
+
+	man->createShaderProgram(SHADER_DEFAULT, 8, vertSource, fragSource);
+	man->addShaderAttribute(SHADER_DEFAULT, "aPos", 3, 0);
+	man->addShaderAttribute(SHADER_DEFAULT, "aNorm", 3, 5);
+
+	man->loadTexture(TEXTURE_WOODEN_BOX, "Resources/container.jpg");
+	man->loadTexture(TEXTURE_TILES, "Resources/terrainTiles.png");
 
 	float vertices[] = {
-	//position			  //texture	   //color
+	//position			  //texture	   //normal
 	//back side
 	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f, 0.0f, -1.0f,
 	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f, 0.0f, -1.0f,
@@ -150,6 +169,17 @@ int main()
 
 	man->addModel(MODEL_BOX2, SHADER_LIGHT, 36, vertices);
 
+
+	float* bottleVertices;
+	int numTriangles;
+
+	parseObjFile("Resources/bottle.obj", bottleVertices, numTriangles, ModelLoaderInclude::Normals);
+	//parseObjFile("Resources/247_House 15_obj.obj", bottleVertices, numTriangles);
+
+	man->addModel(MODEL_BOTTLE, SHADER_DEFAULT, numTriangles * 3, bottleVertices);
+
+	delete[] bottleVertices;
+
 	Vec3 cubePositions[] = {
 		Vec3{0.0f,  0.0f,  0.0f},
 		Vec3{2.0f,  5.0f, -15.0f},
@@ -167,21 +197,32 @@ int main()
 
 	man->loadUniform(SHADER_TEXTURE, "camera", camera.getCameraMatrix());
 	man->loadUniform(SHADER_LIGHT, "camera", camera.getCameraMatrix());
+	man->loadUniform(SHADER_DEFAULT, "camera", camera.getCameraMatrix());
 	//man->loadUniform(SHADER_COLOR, "camera", Mat4());
 
 	man->loadUniform(SHADER_TEXTURE, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 	man->loadUniform(SHADER_LIGHT, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
+	man->loadUniform(SHADER_DEFAULT, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 	//man->loadUniform(SHADER_COLOR, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 
-	Vec3 lightColor{ 10.0f, 0.0f, 1.0f };
+	Vec3 lightColor{ 1.0f, 1.0f, 1.0f };
 
 	man->loadUniform(SHADER_LIGHT, "lightColor", lightColor);
 	man->loadUniform(SHADER_TEXTURE, "lightColor", lightColor);
+	man->loadUniform(SHADER_DEFAULT, "lightColor", lightColor);
+
 	Mat4 lightTrans;
 	lightTrans = Mat::scale(lightTrans, Vec3(0.2f));
 	lightTrans = Mat::translate(lightTrans, Vec3{ 0.0f, 0.0f, -5.0f });
 	man->loadUniform(SHADER_LIGHT, "model", lightTrans);
+
 	man->loadUniform(SHADER_TEXTURE, "lightPos", Vec3{ 0.0f, 0.0f, -5.0f });
+	man->loadUniform(SHADER_DEFAULT, "lightPos", Vec3{ 0.0f, 0.0f, -5.0f });
+
+	Mat4 bottleTrans;
+	bottleTrans = Mat::scale(bottleTrans, Vec3(0.01f));
+	bottleTrans = Mat::translate(bottleTrans, Vec3{ 10.0f, 0.0f, 0.0f });
+	man->loadUniform(SHADER_DEFAULT, "model", bottleTrans);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
@@ -197,13 +238,17 @@ int main()
 		processInput(window, camera);
 		//Camera::setPosition({ camX, 0, camZ });
 		//Camera::setTarget({ 0,0,0 });
+
+		man->loadUniform(SHADER_LIGHT, "camera", camera.getCameraMatrix());
+		man->drawItem(SHADER_LIGHT, MODEL_BOX);
+
+		man->loadUniform(SHADER_DEFAULT, "camera", camera.getCameraMatrix());
+		man->loadUniform(SHADER_DEFAULT, "cameraPos", camera.getPosition());
+		man->drawItem(MODEL_BOTTLE);
+
 		man->loadUniform(SHADER_TEXTURE, "camera", camera.getCameraMatrix());
 		man->loadUniform(SHADER_TEXTURE, "cameraPos", camera.getPosition());
 		man->setTextureUniform(SHADER_TEXTURE, 2, "ourTexture", TEXTURE_WOODEN_BOX);
-
-		man->loadUniform(SHADER_LIGHT, "camera", camera.getCameraMatrix());
-
-		man->drawItem(SHADER_LIGHT, MODEL_BOX);
 
 		for (unsigned int i = 0; i < 10; i++)
 		{

@@ -34,7 +34,6 @@ namespace GLBackend
 			glDrawArrays(GL_TRIANGLES, 0, drawCount);
 		}
 
-		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);
 		glUseProgram(0);
 	}

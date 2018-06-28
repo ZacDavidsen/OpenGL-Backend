@@ -24,12 +24,4 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="simpleTexture.vert">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="simpleTexture.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
 </Project>
