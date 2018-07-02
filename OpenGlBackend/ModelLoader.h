@@ -1,6 +1,7 @@
 #pragma once
 
 enum ModelLoaderInclude {
+	//This will break if you expect 3 texture coordinates!
 	TexCoords = 0x1,
 	Normals = 0x2,
 //	AmbientColor = 0x4,

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "ModelLoader.h"
+//TODO: uncouple this from Matrix so that it's a standalone utility
 #include "Matrix.h"
 
 //struct MTLdata {
@@ -13,18 +14,22 @@
 //	float alpha;
 //};
 
-#define DEBUGGING_STUFFN
+struct Vertex {
+	Vec3* coordinate;
+	Vec2* texCoords;
+	Vec3* normal;
+};
 
-int parseVertex(std::ifstream& stream, int& vertexIndex, int& texIndex, int& normalIndex);
-Mat::Vector<8>* makeVertex(Vec3* vertex, Vec2* texCoord, Vec3* norm);
+int getVertexIndices(std::ifstream& stream, int& vertexIndex, int& texIndex, int& normalIndex);
 
 void parseObjFile(const char* filename, float*& verticesOut, int& trianglesOut, int options)
 {
 	std::vector<Vec3*> vertices;
 	std::vector<Vec2*> texCoords;
 	std::vector<Vec3*> normals;
-	std::vector<Mat::Vector<8>*> attribArray;
-	std::vector<Mat::Vector<8>*> uniqueVertices;
+	std::vector<Vec3*> calculatedNormals;
+	std::vector<Vertex*> attribArray;
+	std::vector<Vertex*> uniqueVertices;
 	trianglesOut = 0;
 	//std::unordered_map<std::string, MTLdata> materials = std::unordered_map<std::string, MTLdata>();
 
@@ -35,6 +40,9 @@ void parseObjFile(const char* filename, float*& verticesOut, int& trianglesOut, 
 	{
 		objFile >> linePrefix;
 
+		//Extracting formatted data doesn't trigger eof, it just fails
+		//To work around this for now, I just assume that if it can't extract 
+		//the line start, then there's no more data to read.
 		if (objFile.fail())
 		{
 			//objFile.clear();
@@ -52,6 +60,8 @@ void parseObjFile(const char* filename, float*& verticesOut, int& trianglesOut, 
 			Vec2* tex = new Vec2();
 			objFile >> tex->operator[](0) >> tex->operator[](1);
 			texCoords.push_back(tex);
+			//TODO: fix this to handle 3 texture coordinates correctly!
+			//Currently avoids errors since it ignores the rest of the line
 		}
 		else if (linePrefix == "vn" && options & ModelLoaderInclude::Normals) {
 			Vec3* norm = new Vec3();
@@ -61,26 +71,61 @@ void parseObjFile(const char* filename, float*& verticesOut, int& trianglesOut, 
 		else if (linePrefix == "f") {
 			int vertexIndex, texIndex, normalIndex;
 
-			parseVertex(objFile, vertexIndex, texIndex, normalIndex);
+			getVertexIndices(objFile, vertexIndex, texIndex, normalIndex);
 			if (!(options & ModelLoaderInclude::TexCoords)) texIndex = 0;
 			if (!(options & ModelLoaderInclude::Normals)) normalIndex = 0;
 
-			Mat::Vector<8>* first = makeVertex(vertices[vertexIndex - 1],
-											   texIndex ? texCoords[texIndex - 1] : nullptr,
-											   normalIndex ? normals[normalIndex - 1] : nullptr);
+			Vertex* first = new Vertex;
+			first->coordinate = vertices[vertexIndex - 1];
+			first->texCoords = texIndex ? texCoords[texIndex - 1] : nullptr;
+			first->normal = normalIndex ? normals[normalIndex - 1] : nullptr;
 
-			parseVertex(objFile, vertexIndex, texIndex, normalIndex);
+			getVertexIndices(objFile, vertexIndex, texIndex, normalIndex);
 			if (!(options & ModelLoaderInclude::TexCoords)) texIndex = 0;
 			if (!(options & ModelLoaderInclude::Normals)) normalIndex = 0;
 
-			Mat::Vector<8>* last = makeVertex(vertices[vertexIndex - 1],
-											  texIndex ? texCoords[texIndex - 1] : nullptr,
-											  normalIndex ? normals[normalIndex - 1] : nullptr);
+			Vertex* last = new Vertex;
+			last->coordinate = vertices[vertexIndex - 1];
+			last->texCoords = texIndex ? texCoords[texIndex - 1] : nullptr;
+			last->normal = normalIndex ? normals[normalIndex - 1] : nullptr;
 
 			uniqueVertices.push_back(first);
 			uniqueVertices.push_back(last);
 
-			while (parseVertex(objFile, vertexIndex, texIndex, normalIndex))
+			bool doCalculateNormals = options & ModelLoaderInclude::Normals && normalIndex == 0;
+			Vertex* second = last;
+			Vec3* normal = nullptr;
+
+			//separating out the third vertex, since we know it should always be there, and we 
+			//might need to calculate the normal
+			getVertexIndices(objFile, vertexIndex, texIndex, normalIndex);
+			if (!(options & ModelLoaderInclude::TexCoords)) texIndex = 0;
+			if (!(options & ModelLoaderInclude::Normals)) normalIndex = 0;
+
+			attribArray.push_back(first);
+			attribArray.push_back(last);
+
+			last = new Vertex;
+			last->coordinate = vertices[vertexIndex - 1];
+			last->texCoords = texIndex ? texCoords[texIndex - 1] : nullptr;
+			last->normal = normalIndex ? normals[normalIndex - 1] : nullptr;
+
+			attribArray.push_back(last);
+			uniqueVertices.push_back(last);
+
+			trianglesOut++;
+
+			if (doCalculateNormals) {
+				normal = new Vec3(Mat::cross(*second->coordinate - *first->coordinate, 
+											 *last->coordinate - *first->coordinate));
+				first->normal = normal;
+				second->normal = normal;
+				last->normal = normal;
+
+				calculatedNormals.push_back(normal);
+			}
+
+			while (getVertexIndices(objFile, vertexIndex, texIndex, normalIndex))
 			{
 				if (!(options & ModelLoaderInclude::TexCoords)) texIndex = 0;
 				if (!(options & ModelLoaderInclude::Normals)) normalIndex = 0;
@@ -88,45 +133,79 @@ void parseObjFile(const char* filename, float*& verticesOut, int& trianglesOut, 
 				attribArray.push_back(first);
 				attribArray.push_back(last);
 
-				last = makeVertex(vertices[vertexIndex - 1],
-								  texIndex ? texCoords[texIndex - 1] : nullptr,
-								  normalIndex ? normals[normalIndex - 1] : nullptr);
+				last = new Vertex;
+				last->coordinate = vertices[vertexIndex - 1];
+				last->texCoords = texIndex ? texCoords[texIndex - 1] : nullptr;
+				last->normal = normalIndex ? normals[normalIndex - 1] : nullptr;
+
+				if (doCalculateNormals && normalIndex == 0) last->normal = normal;
 
 				attribArray.push_back(last);
 				uniqueVertices.push_back(last);
 
 				trianglesOut++;
 			}
+			//Since extracting formatted input trims leading whitespace, calling getVertexIndices
+			//until it fails trims off the newline if there's no comment on the line.  Put it back
+			//so that the catch-all objFile.ignore doesn't ignore the entire next line
+			objFile.unget();
 		}
 		else if (linePrefix == "l") {
 			//ignoring this for now
-			objFile.ignore(1000, '\n');
 		}
 		else if (linePrefix == "mtllib") {
 			//ignoring this for now
-			objFile.ignore(1000, '\n');
 		}
 		else if (linePrefix == "usemtl") {
 			//ignoring this for now
-			objFile.ignore(1000, '\n');
 		}
 		else if (linePrefix == "o") {
 			//ignoring this for now
-			objFile.ignore(1000, '\n');
 		}
 		else if (linePrefix == "g") {
 			//ignoring this for now
-			objFile.ignore(1000, '\n');
 		}
 		else if (linePrefix == "s") {
 			//ignoring this for now
-			objFile.ignore(1000, '\n');
 		}
 		else {
 			//Some other prefix we weren't expecting, so ignore it
-			objFile.ignore(1000, '\n');
+		}
+		//once we've read all the data we want from the line, just ignore the rest, 
+		//since it's either junk or a comment anyway
+		objFile.ignore(1000, '\n');
+	}
+
+	//TODO: make output size dependent on the options given (no unused space for texcoords for example)
+	verticesOut = new float[attribArray.size() * 8];
+
+	for (int i = 0; i < attribArray.size(); i++) 
+	{
+		Vertex* vec = attribArray[i];
+		//copy stuff to output array
+		int j;
+		for (j = 0; j < 3; j++) 
+		{
+			verticesOut[i * 8 + j] = vec->coordinate->operator[](j);
+		}
+		for (j = 0; j < 2; j++)
+		{
+			Vec2* tex = vec->texCoords;
+			if (tex != nullptr)
+				verticesOut[i * 8 + j + 3] = tex->operator[](j);
+			else 
+				verticesOut[i * 8 + j + 3] = 0;
+		}
+		for (j = 0; j < 3; j++)
+		{
+			Vec3* norm = vec->normal;
+			if (norm != nullptr)
+				verticesOut[i * 8 + j + 5] = norm->operator[](j);
+			else
+				verticesOut[i * 8 + j + 5] = 0;
 		}
 	}
+	attribArray.clear();
 
 	for (Vec3* vec : vertices) {
 		delete vec;
@@ -143,26 +222,18 @@ void parseObjFile(const char* filename, float*& verticesOut, int& trianglesOut, 
 	}
 	normals.clear();
 
-	verticesOut = new float[attribArray.size() * 8];
-
-	for (int i = 0; i < attribArray.size(); i++) 
-	{
-		Mat::Vector<8>* vec = attribArray[i];
-		//copy stuff to output array
-		for (int j = 0; j < 8; j++) 
-		{
-			verticesOut[i * 8 + j] = vec->operator[](j);
-		}
+	for (Vec3* vec : calculatedNormals) {
+		delete vec;
 	}
-	attribArray.clear();
+	calculatedNormals.clear();
 
-	for (Mat::Vector<8>* vec : uniqueVertices) {
+	for (Vertex* vec : uniqueVertices) {
 		delete vec;
 	}
 	uniqueVertices.clear();
 }
 
-int parseVertex(std::ifstream& stream, int& vertexIndex, int& texIndex, int& normalIndex)
+int getVertexIndices(std::ifstream& stream, int& vertexIndex, int& texIndex, int& normalIndex)
 {
 	texIndex = 0; 
 	normalIndex = 0;
@@ -192,39 +263,4 @@ int parseVertex(std::ifstream& stream, int& vertexIndex, int& texIndex, int& nor
 	}
 
 	return 1;
-}
-
-Mat::Vector<8>* makeVertex(Vec3* vertex, Vec2* texCoord, Vec3* norm) 
-{
-	float values[8];
-
-	values[0] = vertex->operator[](0);
-	values[1] = vertex->operator[](1);
-	values[2] = vertex->operator[](2);
-
-	if (texCoord)
-	{
-		values[3] = texCoord->operator[](0);
-		values[4] = texCoord->operator[](1);
-	}
-	else
-	{
-		values[3] = 0;
-		values[4] = 0;
-	}
-
-	if (norm)
-	{
-		values[5] = norm->operator[](0);
-		values[6] = norm->operator[](1);
-		values[7] = norm->operator[](2);
-	}
-	else
-	{
-		values[5] = 0;
-		values[6] = 0;
-		values[7] = 0;
-	}
-
-	return new Mat::Vector<8>(values);
 }

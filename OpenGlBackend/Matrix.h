@@ -63,8 +63,12 @@ namespace Mat
 		const T* getGLFormat() const;
 	};
 
+
 	//Totally not sure if this class is worth it, the only changed functionality is the 
-	//subscript operator, and everything else needs overloaded to return the correct types...
+	//subscript operator, but I haven't been able to find another way around it yet
+	//Tried std::enable_if / SFINAE, but it errors before that since the functions differ
+	//only by return type
+
 	template<unsigned int length, typename T>
 	class Vector : public Matrix<length, 1, T>
 	{

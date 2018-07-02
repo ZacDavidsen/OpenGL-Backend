@@ -175,8 +175,18 @@ int main()
 	float* bottleVertices;
 	int numTriangles;
 
-	parseObjFile("Resources/bottle.obj", bottleVertices, numTriangles, ModelLoaderInclude::Normals);
-	//parseObjFile("Resources/247_House 15_obj.obj", bottleVertices, numTriangles);
+	//parseObjFile("Resources/bottle.obj", bottleVertices, numTriangles, ModelLoaderInclude::Normals);
+	parseObjFile("Resources/247_House 15_obj.obj", bottleVertices, numTriangles, ModelLoaderInclude::Normals | ModelLoaderInclude::TexCoords);
+
+	//std::cout << numTriangles << std::endl;
+
+	//for (int i = 0; i < 80; i++) {
+	//	std::cout << bottleVertices[i];
+	//	if ((i + 1) % 8 == 0)
+	//		std::cout << std::endl;
+	//	else
+	//		std::cout << ", ";
+	//}
 
 	man->addModel(MODEL_BOTTLE, SHADER_DEFAULT, numTriangles * 3, bottleVertices);
 
@@ -222,9 +232,6 @@ int main()
 	man->loadUniform(SHADER_DEFAULT, "lightPos", Vec3{ 0.0f, 0.0f, -5.0f });
 
 	Mat4 bottleTrans;
-	bottleTrans = Mat::scale(bottleTrans, Vec3(0.01f));
-	bottleTrans = Mat::translate(bottleTrans, Vec3{ 10.0f, 0.0f, 0.0f });
-	man->loadUniform(SHADER_DEFAULT, "model", bottleTrans);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
@@ -244,8 +251,14 @@ int main()
 		man->loadUniform(SHADER_LIGHT, "camera", camera.getCameraMatrix());
 		man->drawItem(SHADER_LIGHT, MODEL_BOX);
 
-		man->loadUniform(SHADER_DEFAULT, "camera", camera.getCameraMatrix());
+		man->loadUniform(SHADER_DEFAULT, "camera", camera.getCameraMatrix()); 
 		man->loadUniform(SHADER_DEFAULT, "cameraPos", camera.getPosition());
+
+		bottleTrans = Mat4();
+		bottleTrans = Mat::scale(bottleTrans, Vec3(0.01f));
+		bottleTrans = Mat::rotate(bottleTrans, glfwGetTime(), Vec3{ 0,1,0 });
+		bottleTrans = Mat::translate(bottleTrans, Vec3{ 0.0f, 0.0f, 5.0f });
+		man->loadUniform(SHADER_DEFAULT, "model", bottleTrans);
 		man->drawItem(MODEL_BOTTLE);
 
 		man->loadUniform(SHADER_TEXTURE, "camera", camera.getCameraMatrix());
@@ -255,9 +268,9 @@ int main()
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			Mat4 trans;
-			trans = Mat::translate(trans, cubePositions[i]);
 			float angle = 20.0f * i;
 			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });
+			trans = Mat::translate(trans, cubePositions[i]);
 			man->loadUniform(SHADER_TEXTURE, "model", trans);
 			man->drawItem(SHADER_TEXTURE, MODEL_BOX);
 		}
