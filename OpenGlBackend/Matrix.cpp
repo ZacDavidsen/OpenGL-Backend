@@ -30,22 +30,22 @@ namespace Mat
 
 	Mat4 translate(const Mat4& mat, const Vec3& transform)
 	{
-		Mat::Matrix<4> ret(mat);
+		Mat4 ret;
 		for (int i = 0; i < 3; i++)
 		{
 			ret[i][3] += transform[i];
 		}
-		return ret;
+		return ret * mat;
 	}
 
 	Mat4 scale(const Mat4& mat, const Vec3& transform)
 	{
-		Mat::Matrix<4> ret = Mat::Matrix<4>(mat);
+		Mat4 ret;
 		for (int i = 0; i < 3; i++)
 		{
-			ret[i][i] *= transform[i];
+			ret[i][i] = transform[i];
 		}
-		return ret;
+		return ret * mat;
 	}
 
 	Mat4 rotate(const Mat4 &m, float angle, const Vec3 &v)
@@ -71,7 +71,7 @@ namespace Mat
 		Rotate[2][1] = temp[2] * axis[1] - s * axis[0];
 		Rotate[2][2] = c + temp[2] * axis[2];
 
-		return m * Rotate;
+		return Rotate * m;
 	}
 
 	float toRads(float in)
