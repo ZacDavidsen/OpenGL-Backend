@@ -24,4 +24,18 @@
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\default.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\default.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\simpleTexture.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\simpleTexture.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

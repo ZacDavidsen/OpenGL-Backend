@@ -93,7 +93,7 @@
       <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>echo D | xcopy $(ProjectDir)Resources $(TargetDir)Resources /s /e /y</Command>
+      <Command>echo D | xcopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /s /e /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -142,6 +142,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shaders.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\default.frag" />
+    <None Include="Resources\default.vert" />
+    <None Include="Resources\simpleTexture.frag" />
+    <None Include="Resources\simpleTexture.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

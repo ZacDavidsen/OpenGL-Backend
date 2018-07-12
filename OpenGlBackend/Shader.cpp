@@ -102,7 +102,7 @@ namespace GLBackend
 
 
 
-	void Shader::setUniform(std::string name, const Mat2 data)
+	void Shader::setUniform(std::string name, const Mat2& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -111,7 +111,7 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const Mat3 data)
+	void Shader::setUniform(std::string name, const Mat3& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -120,7 +120,7 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const Mat4 data)
+	void Shader::setUniform(std::string name, const Mat4& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -131,7 +131,7 @@ namespace GLBackend
 
 
 
-	void Shader::setUniform(std::string name, const Vec2 data)
+	void Shader::setUniform(std::string name, const Vec2& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -140,7 +140,7 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const iVec2 data)
+	void Shader::setUniform(std::string name, const iVec2& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -149,7 +149,7 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const uVec2 data)
+	void Shader::setUniform(std::string name, const uVec2& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -169,7 +169,7 @@ namespace GLBackend
 
 
 
-	void Shader::setUniform(std::string name, const Vec3 data)
+	void Shader::setUniform(std::string name, const Vec3& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -178,7 +178,7 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const iVec3 data)
+	void Shader::setUniform(std::string name, const iVec3& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -187,7 +187,7 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const uVec3 data)
+	void Shader::setUniform(std::string name, const uVec3& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -207,7 +207,7 @@ namespace GLBackend
 
 
 
-	void Shader::setUniform(std::string name, const Vec4 data)
+	void Shader::setUniform(std::string name, const Vec4& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -216,7 +216,7 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const iVec4 data)
+	void Shader::setUniform(std::string name, const iVec4& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -225,7 +225,7 @@ namespace GLBackend
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const uVec4 data)
+	void Shader::setUniform(std::string name, const uVec4& data)
 	{
 		int location = getUniformLocation(name);
 
@@ -280,6 +280,15 @@ namespace GLBackend
 		glUniform1i(location, data);
 		glUseProgram(0);
 	}
+
+	void Shader::setTexture(int textureSlot, std::string uniformName, int textureId)
+	{
+		glActiveTexture(GL_TEXTURE0 + textureSlot);
+		glBindTexture(GL_TEXTURE_2D, textureId);
+		setUniform(uniformName, textureSlot);
+	}
+
+
 
 	int Shader::getUniformLocation(std::string name) 
 	{

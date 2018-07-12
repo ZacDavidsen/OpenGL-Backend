@@ -176,33 +176,44 @@ void parseObjFile(const char* filename, float*& verticesOut, int& trianglesOut, 
 		objFile.ignore(1000, '\n');
 	}
 
+	int attribElements = 3;
+	if (options & ModelLoaderInclude::TexCoords) attribElements += 2;
+	if (options & ModelLoaderInclude::Normals) attribElements += 3;
+
 	//TODO: make output size dependent on the options given (no unused space for texcoords for example)
-	verticesOut = new float[attribArray.size() * 8];
+	verticesOut = new float[attribArray.size() * attribElements];
 
 	for (int i = 0; i < attribArray.size(); i++) 
 	{
+		int index = 0;
 		Vertex* vec = attribArray[i];
 		//copy stuff to output array
 		int j;
-		for (j = 0; j < 3; j++) 
+		for (j = 0; j < 3; j++, index++) 
 		{
-			verticesOut[i * 8 + j] = vec->coordinate->operator[](j);
+			verticesOut[i * attribElements + index] = vec->coordinate->operator[](j);
 		}
-		for (j = 0; j < 2; j++)
+		if (options & ModelLoaderInclude::TexCoords)
 		{
-			Vec2* tex = vec->texCoords;
-			if (tex != nullptr)
-				verticesOut[i * 8 + j + 3] = tex->operator[](j);
-			else 
-				verticesOut[i * 8 + j + 3] = 0;
+			for (j = 0; j < 2; j++, index++)
+			{
+				Vec2* tex = vec->texCoords;
+				if (tex != nullptr)
+					verticesOut[i * attribElements + index] = tex->operator[](j);
+				else
+					verticesOut[i * attribElements + index] = 0;
+			}
 		}
-		for (j = 0; j < 3; j++)
+		if (options & ModelLoaderInclude::Normals)
 		{
-			Vec3* norm = vec->normal;
-			if (norm != nullptr)
-				verticesOut[i * 8 + j + 5] = norm->operator[](j);
-			else
-				verticesOut[i * 8 + j + 5] = 0;
+			for (j = 0; j < 3; j++, index++)
+			{
+				Vec3* norm = vec->normal;
+				if (norm != nullptr)
+					verticesOut[i * attribElements + index] = norm->operator[](j);
+				else
+					verticesOut[i * attribElements + index] = 0;
+			}
 		}
 	}
 	attribArray.clear();
