@@ -9,26 +9,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-/*
-
-std::unordered_map<int, GLBackend::Shader> shaders;
-std::unordered_map<int, GLBackend::Model> models;
-std::unordered_map<int, unsigned int> textures;
-
-std::string texturePath = "";
-
-/*/
 
 GLManager::GLManager()
 {
-	shaders = std::unordered_map<int, GLBackend::Shader*>();
-	models = std::unordered_map<int, GLBackend::Model*>();
-	textures = std::unordered_map<int, unsigned int>();
+	
 }
 
 GLManager::~GLManager()
 {
-	for (auto entry : shaders) 
+	for (auto entry : this->shaders)
 	{
 		GLBackend::Shader* shader = entry.second;
 
@@ -36,44 +25,54 @@ GLManager::~GLManager()
 	}
 	this->shaders.clear();
 
-	for (auto entry : models)
+	for (auto entry : this->models)
 	{
 		GLBackend::Model* model = entry.second;
 
 		delete model;
 	}
 	this->models.clear();
+
+	unsigned int *texs = new unsigned int[this->textures.size()];
+	int i = 0;
+	for (auto entry : this->textures)
+	{
+		texs[i++] = entry.second;
+	}
+	glDeleteTextures(textures.size(), texs);
+	delete[] texs;
+	this->textures.clear();
+
 }
 
-//*/
+
 
 void GLManager::createShaderProgram(int referenceId, unsigned int vertexElements, const char* vertexSource, const char* fragmentSource)
 {
 	GLBackend::Shader* shader = new GLBackend::Shader(vertexElements, vertexSource, fragmentSource);
-	shaders.emplace(referenceId, shader);
-	//return shaders.at(referenceId);
+	this->shaders.emplace(referenceId, shader);
 }
 
 void GLManager::addShaderAttribute(int shaderId, const char* name, unsigned int elements, unsigned int offset)
 {
-	shaders.at(shaderId)->addAttribute(name, elements, offset);
+	this->shaders.at(shaderId)->addAttribute(name, elements, offset);
 }
 
 void GLManager::addShaderAttribute(int shaderId, int location, const char* name, unsigned int elements, unsigned int offset)
 {
-	shaders.at(shaderId)->addAttribute(location, name, elements, offset);
+	this->shaders.at(shaderId)->addAttribute(location, name, elements, offset);
 }
 
 
 
 void GLManager::setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId)
 {
-	shaders.at(shaderId)->setTexture(textureSlot, uniformName, textures.at(textureId));
+	this->shaders.at(shaderId)->setTexture(textureSlot, uniformName, textures.at(textureId));
 }
 
-void GLManager::setTextureFolder(std::string path)
+void GLManager::setTexturePath(std::string path)
 {
-	/*this->*/texturePath = path;
+	this->texturePath = path;
 }
 
 void GLManager::loadTexture(int referenceId, std::string fileName)
@@ -91,11 +90,11 @@ void GLManager::loadTexture(int referenceId, std::string fileName)
 	// width and height are in pixels
 	int width, height, origBitsPerPixel;
 
-	unsigned char *data = stbi_load((/*this->*/texturePath + fileName).c_str(), &width, &height, &origBitsPerPixel, 4);
+	unsigned char *data = stbi_load((this->texturePath + fileName).c_str(), &width, &height, &origBitsPerPixel, 4);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		//glGenerateMipmap(GL_TEXTURE_2D);
+		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
@@ -103,96 +102,42 @@ void GLManager::loadTexture(int referenceId, std::string fileName)
 	}
 	stbi_image_free(data);
 
-	textures.emplace(referenceId, texture);
+	this->textures.emplace(referenceId, texture);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
 
-void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[])
+void GLManager::addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements)
 {
-	GLBackend::Shader* shader = shaders.at(shaderId);
-	unsigned int numElements = shader->getVertexElements();
-
-	//TODO refactor for color suppport
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numElements * verticesCount, vertices, GL_STATIC_DRAW);
-
-	for (auto attr : shader->getAttributes())
-	{
-		glVertexAttribPointer(attr->location, attr->size, GL_FLOAT, GL_FALSE, numElements * sizeof(float), (void*)(attr->offset * sizeof(float)));
-		glEnableVertexAttribArray(attr->location);
-	}
-
-	GLBackend::Model* model = new GLBackend::Model(shader->getId(), VAO, verticesCount);
-	models.emplace(referenceId, model);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	GLBackend::Model* model = new GLBackend::Model(vertices, verticesCount, numVertexElements);
+	this->models.emplace(referenceId, model);
 }
 
-void GLManager::addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[])
+void GLManager::addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements, unsigned int EBO[], unsigned int EBOTriangles)
 {
-	GLBackend::Shader* shader = shaders.at(shaderId);
-	unsigned int numElements = shader->getVertexElements();
-
-	//TODO refactor for color suppport
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numElements * verticesCount, vertices, GL_STATIC_DRAW);
-
-	unsigned int EBOid;
-	glGenBuffers(1, &EBOid);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOid);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * 3 * EBOTriangles, EBO, GL_STATIC_DRAW);	
-
-	for (auto attr : shader->getAttributes())
-	{
-		glVertexAttribPointer(attr->location, attr->size, GL_FLOAT, GL_FALSE, numElements * sizeof(float), (void*)(attr->offset * sizeof(float)));
-		glEnableVertexAttribArray(attr->location);
-	}
-
-	GLBackend::Model* model = new GLBackend::Model(shader->getId(), VAO, EBOTriangles * 3, true);
-	models.emplace(referenceId, model);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-}
-
-
-
-void GLManager::drawItem(int modelId)
-{
-	models.at(modelId)->drawModel();
+	GLBackend::Model* model = new GLBackend::Model(vertices, verticesCount, numVertexElements, EBO, EBOTriangles);
+	this->models.emplace(referenceId, model);
 }
 
 
 void GLManager::drawItem(int shaderId, int modelId) {
-	shaders.at(shaderId)->bind();
-	GLBackend::Model* model = models.at(modelId);
-	glBindVertexArray(model->VAO);
+	GLBackend::Shader* shader = this->shaders.at(shaderId);
+	GLBackend::Model* model = this->models.at(modelId);
 
-	if (model->hasEBO)
+	shader->bind();
+	model->bindToShader(shader);
+
+	if (model->getHasEBO())
 	{
-		glDrawElements(GL_TRIANGLES, model->drawCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, model->getDrawCount(), GL_UNSIGNED_INT, 0);
 	}
 	else
 	{
-		glDrawArrays(GL_TRIANGLES, 0, model->drawCount);
+		glDrawArrays(GL_TRIANGLES, 0, model->getDrawCount());
 	}
 
-	glBindVertexArray(0);
-	glUseProgram(0);
+	model->unbind();
+	shader->unbind();
 }

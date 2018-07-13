@@ -13,7 +13,7 @@ namespace Mat
 
 	Vec3 cross(Vec3 left, Vec3 right);
 	template<unsigned int length>
-	Mat::Vector<length> dot(Mat::Vector<length> left, Mat::Vector<length> right);
+	Mat::Vector<length> dot(const Mat::Vector<length> &left, const Mat::Vector<length> &right);
 
 	Mat4 translate(const Mat4 &mat, const Vec3 &transform);
 	Mat4 scale(const Mat4 &mat, const Vec3 &transform);

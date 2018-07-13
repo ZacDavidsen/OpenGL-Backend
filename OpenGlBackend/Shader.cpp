@@ -18,46 +18,42 @@ namespace GLBackend
 {
 	Shader::Shader(unsigned int vertexElements, const char* vertexSource, const char* fragmentSource)
 	{
+		//TODO break shader stages into their own class, for reuse, better management
 		int success;
 		char infoLog[512];
 
-		int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertexShader, 1, &vertexSource, NULL);
-		glCompileShader(vertexShader);
-		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+		this->vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(this->vertexShaderID, 1, &vertexSource, NULL);
+		glCompileShader(this->vertexShaderID);
+		glGetShaderiv(this->vertexShaderID, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+			glGetShaderInfoLog(this->vertexShaderID, 512, NULL, infoLog);
 			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 		}
 
-		int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-		glCompileShader(fragmentShader);
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+		this->fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(this->fragmentShaderID, 1, &fragmentSource, NULL);
+		glCompileShader(this->fragmentShaderID);
+		glGetShaderiv(this->fragmentShaderID, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+			glGetShaderInfoLog(this->fragmentShaderID, 512, NULL, infoLog);
 			std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 		}
 
-		int shaderProgram = glCreateProgram();
-		glAttachShader(shaderProgram, vertexShader);
-		glAttachShader(shaderProgram, fragmentShader);
-		glLinkProgram(shaderProgram);
-		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+		this->programID = glCreateProgram();
+		glAttachShader(this->programID, this->vertexShaderID);
+		glAttachShader(this->programID, this->fragmentShaderID);
+		glLinkProgram(this->programID);
+		glGetProgramiv(this->programID, GL_LINK_STATUS, &success);
 		if (!success)
 		{
-			glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+			glGetProgramInfoLog(this->programID, 512, NULL, infoLog);
 			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
 		}
 
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
-
-		this->id = shaderProgram;
 		this->vertexElements = vertexElements;
-		this->attributes = std::vector<Attribute*>();
 	}
 
 	Shader::~Shader()
@@ -77,15 +73,27 @@ namespace GLBackend
 			delete uni;
 		}
 		this->uniforms.clear();
+
+		glDeleteShader(this->vertexShaderID);
+		glDeleteShader(this->fragmentShaderID);
+		glDeleteProgram(this->programID);
 	}
 
+
+
 	void Shader::bind() const {
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 	}
+
+	void Shader::unbind() const {
+		glUseProgram(0);
+	}
+
+
 
 	void Shader::addAttribute(const char* name, unsigned int elements, unsigned int offset)
 	{
-		int location = glGetAttribLocation(this->id, name);
+		int location = glGetAttribLocation(this->programID, name);
 		addAttribute(location, name, elements, offset);
 	}
 
@@ -102,58 +110,58 @@ namespace GLBackend
 
 
 
-	void Shader::setUniform(std::string name, const Mat2& data)
+	void Shader::setUniform(std::string name, const Mat2 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniformMatrix2fv(location, 1, GL_TRUE, data.getGLFormat());
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const Mat3& data)
+	void Shader::setUniform(std::string name, const Mat3 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniformMatrix3fv(location, 1, GL_TRUE, data.getGLFormat());
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const Mat4& data)
+	void Shader::setUniform(std::string name, const Mat4 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniformMatrix4fv(location, 1, GL_TRUE, data.getGLFormat());
 		glUseProgram(0);
 	}
 
 
 
-	void Shader::setUniform(std::string name, const Vec2& data)
+	void Shader::setUniform(std::string name, const Vec2 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform2fv(location, 1, data.getGLFormat());
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const iVec2& data)
+	void Shader::setUniform(std::string name, const iVec2 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform2iv(location, 1, data.getGLFormat());
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const uVec2& data)
+	void Shader::setUniform(std::string name, const uVec2 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform2uiv(location, 1, data.getGLFormat());
 		glUseProgram(0);
 	}
@@ -162,36 +170,36 @@ namespace GLBackend
 	//{
 	//	int location = getUniformLocation(name);
 
-	//	glUseProgram(this->id);
+	//	glUseProgram(this->programID);
 	//	glUniform2iv(location, 1, data.getGLFormat());
 	//	glUseProgram(0);
 	//}
 
 
 
-	void Shader::setUniform(std::string name, const Vec3& data)
+	void Shader::setUniform(std::string name, const Vec3 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform3fv(location, 1, data.getGLFormat());
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const iVec3& data)
+	void Shader::setUniform(std::string name, const iVec3 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform3iv(location, 1, data.getGLFormat());
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const uVec3& data)
+	void Shader::setUniform(std::string name, const uVec3 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform3uiv(location, 1, data.getGLFormat());
 		glUseProgram(0);
 	}
@@ -200,36 +208,36 @@ namespace GLBackend
 	//{
 	//	int location = getUniformLocation(name);
 
-	//	glUseProgram(this->id);
+	//	glUseProgram(this->programID);
 	//	glUniform3iv(location, 1, data.getGLFormat());
 	//	glUseProgram(0);
 	//}
 
 
 
-	void Shader::setUniform(std::string name, const Vec4& data)
+	void Shader::setUniform(std::string name, const Vec4 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform4fv(location, 1, data.getGLFormat());
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const iVec4& data)
+	void Shader::setUniform(std::string name, const iVec4 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform4iv(location, 1, data.getGLFormat());
 		glUseProgram(0);
 	}
 
-	void Shader::setUniform(std::string name, const uVec4& data)
+	void Shader::setUniform(std::string name, const uVec4 &data)
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform4uiv(location, 1, data.getGLFormat());
 		glUseProgram(0);
 	}
@@ -238,7 +246,7 @@ namespace GLBackend
 	//{
 	//	int location = getUniformLocation(name);
 
-	//	glUseProgram(this->id);
+	//	glUseProgram(this->programID);
 	//	glUniform4iv(location, 1, data.getGLFormat());
 	//	glUseProgram(0);
 	//}
@@ -249,7 +257,7 @@ namespace GLBackend
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform1f(location, data);
 		glUseProgram(0);
 	}
@@ -258,7 +266,7 @@ namespace GLBackend
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform1i(location, data);
 		glUseProgram(0);
 	}
@@ -267,7 +275,7 @@ namespace GLBackend
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform1ui(location, data);
 		glUseProgram(0);
 	}
@@ -276,7 +284,7 @@ namespace GLBackend
 	{
 		int location = getUniformLocation(name);
 
-		glUseProgram(this->id);
+		glUseProgram(this->programID);
 		glUniform1i(location, data);
 		glUseProgram(0);
 	}
@@ -300,7 +308,7 @@ namespace GLBackend
 		}
 		else
 		{//then we dont know the location, so we need to find it
-			int location = glGetUniformLocation(this->id, name.c_str());
+			int location = glGetUniformLocation(this->programID, name.c_str());
 			uni = new Uniform{ location };
 			this->uniforms.emplace(name, uni);
 		}

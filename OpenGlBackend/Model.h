@@ -2,19 +2,28 @@
 
 namespace GLBackend
 {
+	class Shader;
+
 	class Model
 	{
-	public:
-		unsigned int shaderId;
+		unsigned int lastBoundShader = 0;
 		unsigned int VAO;
+		unsigned int VBO;
+		unsigned int EBO;
 		unsigned int drawCount;
-		unsigned int hasEBO;
+		bool hasEBO;
 
-		Model();
-		Model(unsigned int shaderId, unsigned int VAO, unsigned int drawCount, bool hasEBO = false);
+	public:
+
+		Model(float *vertices, unsigned int numVertices, unsigned int numVertexElements);
+		Model(float *vertices, unsigned int numVertices, unsigned int numVertexElements, unsigned int *EBO, unsigned int numTriangles);
 		~Model();
 
-		void drawModel();
+		bool getHasEBO() const;
+		unsigned int getDrawCount() const;
+
+		void bindToShader(Shader const *shader);
+		void unbind() const;
 	};
 }
 

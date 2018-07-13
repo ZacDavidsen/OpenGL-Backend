@@ -25,7 +25,7 @@ public:
 	void addShaderAttribute(int shaderId, const char* name, unsigned int elements, unsigned int offset);
 	void addShaderAttribute(int shaderId, int location, const char* name, unsigned int elements, unsigned int offset);
 
-	void setTextureFolder(std::string path);
+	void setTexturePath(std::string path);
 	void loadTexture(int referenceId, std::string fileName);
 
 	template<unsigned int height, unsigned int width, typename T>
@@ -35,12 +35,9 @@ public:
 
 	void setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId);
 
-	void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[]);
-	//void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int textureId);
-	void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[]);
-	//void addModel(int referenceId, int shaderId, unsigned int verticesCount, float vertices[], unsigned int EBOTriangles, unsigned int EBO[], unsigned int textureId);
+	void addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements);
+	void addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements, unsigned int EBO[], unsigned int EBOTriangles);
 
-	void drawItem(int modelId);
 	void drawItem(int shaderId, int modelId);
 };
 

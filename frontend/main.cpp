@@ -10,9 +10,7 @@
 #include "GLManager.h"
 #include "Matrix.h"
 #include "ShaderLoader.h"
-
 #include "Camera.h"
-
 #include "ModelLoader.h"
 
 enum Shaders
@@ -26,7 +24,6 @@ enum Shaders
 enum Models
 {
 	MODEL_BOX,
-	MODEL_BOX2,
 	MODEL_BOTTLE,
 	MODEL_HOUSE
 };
@@ -55,7 +52,7 @@ int main()
 	glfwSetKeyCallback(window, callback);
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	//make sure that we have a starting reference point so we can get the diff each frame
+	//make sure that we have an initial value so we can get the diff each frame
 	glfwGetCursorPos(window, &xPos, &yPos);
 
 	GLManager man;
@@ -63,8 +60,10 @@ int main()
 
 	createShaders(man);
 
-	man.loadTexture(TEXTURE_WOODEN_BOX, "Resources/container.jpg");
-	man.loadTexture(TEXTURE_TILES, "Resources/terrainTiles.png");
+	man.setTexturePath("Resources/");
+
+	man.loadTexture(TEXTURE_WOODEN_BOX, "container.jpg");
+	man.loadTexture(TEXTURE_TILES, "terrainTiles.png");
 
 	loadModels(man);
 
@@ -82,11 +81,6 @@ int main()
 	};
 
 	camera.setPosition({ 0.0f, 0.0f, 3.0f });
-
-	man.loadUniform(SHADER_TEXTURE, "camera", camera.getCameraMatrix());
-	man.loadUniform(SHADER_LIGHT, "camera", camera.getCameraMatrix());
-	man.loadUniform(SHADER_DEFAULT, "camera", camera.getCameraMatrix());
-	//man.loadUniform(SHADER_COLOR, "camera", Mat4());
 
 	man.loadUniform(SHADER_TEXTURE, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
 	man.loadUniform(SHADER_LIGHT, "projection", Mat::perspective(Mat::toRads(45.0f), 800.0f / 600, 0.1f, 100.0f));
@@ -109,18 +103,13 @@ int main()
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	
 	while (!glfwWindowShouldClose(window))
 	{
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//float camX = (float)sin(glfwGetTime()) * 10;
-		//float camZ = (float)cos(glfwGetTime()) * 10;
-
 		processInput(window, camera);
-		//Camera::setPosition({ camX, 0, camZ });
-		//Camera::setTarget({ 0,0,0 });
 
 		man.loadUniform(SHADER_LIGHT, "camera", camera.getCameraMatrix());
 		man.drawItem(SHADER_LIGHT, MODEL_BOX);
@@ -130,10 +119,10 @@ int main()
 
 		Mat4 bottleTrans;
 		bottleTrans = Mat::scale(bottleTrans, Vec3(0.01f));
-		bottleTrans = Mat::rotate(bottleTrans, glfwGetTime(), Vec3{ 0,1,0 });
-		bottleTrans = Mat::translate(bottleTrans, Vec3{ 0.0f, 0.0f, 5.0f });
+		bottleTrans = Mat::rotate(bottleTrans, static_cast<float>(glfwGetTime()), Vec3{ 0,1,0 });
+		bottleTrans = Mat::translate(bottleTrans, Vec3{ 0.0f, 0.0f, 7.0f });
 		man.loadUniform(SHADER_DEFAULT, "model", bottleTrans);
-		man.drawItem(MODEL_HOUSE);
+		man.drawItem(SHADER_DEFAULT, MODEL_HOUSE);
 
 		man.loadUniform(SHADER_TEXTURE, "camera", camera.getCameraMatrix());
 		man.loadUniform(SHADER_TEXTURE, "cameraPos", camera.getPosition());
@@ -230,7 +219,7 @@ void loadModels(GLManager& man)
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  1.0f,  0.0f
 	};
 
-	man.addModel(MODEL_BOX, SHADER_TEXTURE, 36, vertices);
+	man.addModel(MODEL_BOX, vertices, 36, 8);
 
 	float* loadedVertices = nullptr;
 	int numTriangles;
@@ -239,7 +228,7 @@ void loadModels(GLManager& man)
 
 	//Careful here! If the shader expects more elements per vertex than the model loader supplies,
 	//then the NEXT call looks like it throws an exception
-	man.addModel(MODEL_HOUSE, SHADER_DEFAULT, numTriangles * 3, loadedVertices);
+	man.addModel(MODEL_HOUSE, loadedVertices, numTriangles * 3, 6);
 
 	delete[] loadedVertices;
 
@@ -269,12 +258,12 @@ void processInput(GLFWwindow *window, Camera& camera)
 		camera.moveUp(1 * movementSpeed);
 
 	float mouseSensitivity = 0.05f;
-	float lastX = (float)xPos, lastY = (float)yPos;
+	float lastX = static_cast<float>(xPos), lastY = static_cast<float>(yPos);
 
 	glfwGetCursorPos(window, &xPos, &yPos);//coordinates are measured from the top-left corner of window
 										   //std::cout << (char)0xd << "dx:" << xPos-lastX << (char)0x9 << "dy:" << lastY-yPos << (char)0x9;
-	camera.rotateHorizontal(Mat::toRads((float)(xPos - lastX)*mouseSensitivity));
-	camera.rotateVertical(Mat::toRads((float)(lastY - yPos)*mouseSensitivity));
+	camera.rotateHorizontal(Mat::toRads(static_cast<float>(xPos - lastX)*mouseSensitivity));
+	camera.rotateVertical(Mat::toRads(static_cast<float>(lastY - yPos)*mouseSensitivity));
 }
 
 void callback(GLFWwindow* window, int key, int scancode, int action, int mods)

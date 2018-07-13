@@ -28,6 +28,19 @@ namespace Mat
 		return Vec3(vals);
 	}
 
+	template<unsigned int length>
+	Mat::Vector<length> dot(const Mat::Vector<length> &left, const Mat::Vector<length> &right) 
+	{
+		Mat::Vector<length> ret;
+		
+		for (int i = 0; i < length; i++)
+		{
+			ret[i] = left[i] * right[i];
+		}
+
+		return ret;
+	}
+
 	Mat4 translate(const Mat4& mat, const Vec3& transform)
 	{
 		Mat4 ret;
