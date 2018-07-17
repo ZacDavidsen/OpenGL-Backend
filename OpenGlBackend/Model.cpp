@@ -41,6 +41,7 @@ namespace GLBackend
 
 	Model::~Model()
 	{
+		//TODO: this destructor could cause problems if the model is passed by value...
 		if (this->hasEBO)
 			glDeleteBuffers(1, &this->EBO);
 		glDeleteBuffers(1, &this->VBO);

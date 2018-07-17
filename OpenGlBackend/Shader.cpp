@@ -58,6 +58,7 @@ namespace GLBackend
 
 	Shader::~Shader()
 	{
+		//TODO: This destructor might cause problems if the shader is ever passed by value....
 		for (auto iter = this->attributes.crbegin(); iter != this->attributes.crend(); iter++) 
 		{
 			Attribute* attr = *iter;

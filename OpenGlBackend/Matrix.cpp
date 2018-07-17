@@ -147,16 +147,16 @@ namespace Mat
 		return Mat4(vals);
 	}
 
-	Mat4 orthographic(float left, float right, float top, float bottom, float nearz, float farz)
+	Mat4 orthographic(float left, float right, float bottom, float top, float nearz, float farz)
 	{
 		float vals[16];
 		for (int i = 0; i < 16; i++)
 			vals[i] = 0;
 
 		vals[0] = 2 / (right - left);
-		vals[3] = -right - left / (right - left);
+		vals[3] = -(right + left) / (right - left);
 		vals[5] = 2 / (top - bottom);
-		vals[7] = -top - bottom / (top - bottom);
+		vals[7] = -(top + bottom) / (top - bottom);
 		vals[10] = -2 / (farz - nearz);
 		vals[11] = -(farz + nearz) / (farz - nearz);
 		vals[15] = 1;

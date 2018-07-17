@@ -32,6 +32,8 @@ public:
 	void loadUniform(int shaderId, std::string name, const Mat::Matrix<height, width, T> data);
 	template<unsigned int height, typename T>
 	void loadUniform(int shaderId, std::string name, const Mat::Vector<height, T> data);
+	void loadUniform(int shaderId, std::string name, int value);
+	void loadUniform(int shaderId, std::string name, unsigned int value);
 
 	void setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId);
 
@@ -42,7 +44,7 @@ public:
 };
 
 
-
+//Don't really like having these here, but the template makes it so easy..
 template<unsigned int height, unsigned int width, typename T>
 void GLManager::loadUniform(int shaderId, std::string name, const Mat::Matrix<height, width, T> data)
 {

@@ -14,6 +14,7 @@ uniform vec3 cameraPos;
 void main()
 {
 	vec4 texel = texture(ourTexture, TexCoord);
+	//hacky way to take care of full transparency without sorting everything
 	if(texel.a < 0.5)
 		discard;
 

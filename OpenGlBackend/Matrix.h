@@ -24,7 +24,7 @@ namespace Mat
 	Mat4 perspective(float left, float right, float top, float bottom, float nearz, float farz);
 	Mat4 perspective2(float width, float height, float nearz, float farz);
 
-	Mat4 orthographic(float left, float right, float top, float bottom, float nearz, float farz);
+	Mat4 orthographic(float left, float right, float bottom, float top, float nearz, float farz);
 	Mat4 orthographic(float width, float height, float nearz, float farz);
 
 

@@ -65,6 +65,16 @@ void GLManager::addShaderAttribute(int shaderId, int location, const char* name,
 
 
 
+void GLManager::loadUniform(int shaderId, std::string name, int value)
+{
+	this->shaders.at(shaderId)->setUniform(name, value);
+}
+
+void GLManager::loadUniform(int shaderId, std::string name, unsigned int value)
+{
+	this->shaders.at(shaderId)->setUniform(name, value);
+}
+
 void GLManager::setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId)
 {
 	this->shaders.at(shaderId)->setTexture(textureSlot, uniformName, textures.at(textureId));

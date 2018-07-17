@@ -2,7 +2,7 @@
 #include "GLFW\Glfw3.h"
 #include <iostream>
 
-int initWindow(int height, int width, GLFWwindow*& windowOut)
+int initWindow(int width, int height, GLFWwindow*& windowOut)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
