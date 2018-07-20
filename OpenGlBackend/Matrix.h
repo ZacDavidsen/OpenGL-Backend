@@ -41,21 +41,15 @@ namespace Mat
 		T vals[height*width];
 
 	public:
+		//TODO: passing 0 for diagVal looks the same as passing nullptr for values, resulting in ambiguous calls..
 		Matrix(T diagVal = 1);
 		Matrix(T values[]);
 		Matrix(std::initializer_list<T> values);
 		Matrix(const Matrix &mat);
 		~Matrix();
 
-		Matrix<height, width, T> operator+(const Matrix<height, width, T>& right) const;
-		Matrix<height, width, T> operator-() const;
-		Matrix<height, width, T> operator-(const Matrix<height, width, T>& right) const;
-		Matrix<height, width, T> operator/(T num) const;
-		Matrix<height, width, T> operator*(T num) const;
-		template<unsigned int newWidth>
-			Matrix<height, newWidth, T> operator*(const Matrix<width, newWidth, T> &right) const;
-
 		T* operator[](int row);
+		T const* operator[](int row) const;
 
 		std::string toString() const;
 
@@ -68,15 +62,14 @@ namespace Mat
 	//subscript operator, but I haven't been able to find another way around it yet
 	//Tried std::enable_if / SFINAE, but it errors before that since the functions differ
 	//only by return type
-
 	template<unsigned int length, typename T>
 	class Vector : public Matrix<length, 1, T>
 	{
 	public:
-		Vector(T initVal = 0): Matrix(initVal){}
-		Vector(T values[]): Matrix(values){}
-		Vector(std::initializer_list<T> values): Matrix(values){}
-		Vector(const Matrix &mat): Matrix(mat){}
+		Vector(T initVal = 0) : Matrix(initVal){}
+		Vector(T values[]) : Matrix(values){}
+		Vector(std::initializer_list<T> values) : Matrix(values){}
+		Vector(const Matrix &mat) : Matrix(mat){}
 
 		T& operator[](int index)
 		{ 
@@ -90,11 +83,6 @@ namespace Mat
 	};
 
 
-
-	//template<unsigned int height, unsigned int width, typename T>
-	//Matrix<height, width, T>::Matrix() 
-	//{
-	//}
 
 	template<unsigned int height, unsigned int width, typename T>
 	Matrix<height, width, T>::Matrix(T diagVal)
@@ -120,23 +108,18 @@ namespace Mat
 	{
 		for (int i = 0; i < height*width; i++)
 		{
-			this->vals[i] = values[i];
+			vals[i] = values[i];
 		}
 	}
 
 	template<unsigned int height, unsigned int width, typename T>
 	Matrix<height, width, T>::Matrix(std::initializer_list<T> values)
 	{
-		if (values.size() != height * width)
-		{
-			throw "Mismatch of data length!";
-		}
-
 		const T *begin = values.begin();
 
 		for (int i = 0; i < height*width; i++)
 		{
-			this->vals[i] = begin[i];
+			vals[i] = begin[i];
 		}
 	}
 
@@ -154,59 +137,125 @@ namespace Mat
 	{
 	}
 
-	template<unsigned int height, unsigned int width, typename T>
-	Matrix<height, width, T> Matrix<height, width, T>::operator+(const Matrix<height, width, T> &right) const
-	{
-		T newVals[height*width];
-		for (int i = 0; i < height*width; i++)
-		{
-			newVals[i] = this->vals[i] + right.vals[i];
-		}
-		return Matrix(newVals);
-	}
+
 
 	template<unsigned int height, unsigned int width, typename T>
-	Matrix<height, width, T> Matrix<height, width, T>::operator-() const
+	Matrix<height, width, T> operator+(const Matrix<height, width, T> &left, const Matrix<height, width, T> &right)
 	{
-		T newVals[height*width];
-		for (int i = 0; i < height*width; i++)
+		Matrix<height, width, T> ret;
+		for (int i = 0; i < height; i++)
 		{
-			newVals[i] = -this->vals[i];
+			for (int j = 0; j < width; j++)
+			{
+				ret[i][j] = left[i][j] + right[i][j];
+			}
 		}
-		return Matrix(newVals);
+		return ret;
 	}
 
-	template<unsigned int height, unsigned int width, typename T>
-	Matrix<height, width, T> Matrix<height, width, T>::operator-(const Matrix<height, width, T> &right) const
+	//Not a fan of all this code duplication, but it's better than vec<x> + vec<x> = mat<x,1> followed by an implicit
+	//conversion back to vec<x>
+	template<unsigned int height, typename T>
+	Vector<height, T> operator+(const Vector<height, T> &left, const Vector<height, T> &right)
 	{
-		T newVals[height*width];
-		for (int i = 0; i < height*width; i++)
+		Vector<height, T> ret;
+		for (int i = 0; i < height; i++)
 		{
-			newVals[i] = this->vals[i] - right.vals[i];
+			ret[i] = left[i] + right[i];
 		}
-		return Matrix(newVals);
+		return ret;
 	}
 
+
+
 	template<unsigned int height, unsigned int width, typename T>
-	template<unsigned int newWidth>
-	Matrix<height, newWidth, T> Matrix<height, width, T>::operator*(const Matrix<width, newWidth, T> &right) const
+	Matrix<height, width, T> operator-(const Matrix<height, width, T> &right)
 	{
-		T newVals[height*newWidth];
+		Matrix<height, width, T> ret;
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				ret[i][j] = -right[i][j];
+			}
+		}
+		return ret;
+	}
+
+	template<unsigned int height, typename T>
+	Vector<height, T> operator-(const Vector<height, T> &right)
+	{
+		Vector<height, T> ret;
+		for (int i = 0; i < height; i++)
+		{
+			ret[i] = -right[i];
+
+		}
+		return ret;
+	}
+
+
+
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T> operator-(const Matrix<height, width, T> &left, const Matrix<height, width, T> &right)
+	{
+		Matrix<height, width, T> ret;
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				ret[i][j] = left[i][j] - right[i][j];
+			}
+		}
+		return ret;
+	}
+
+	template<unsigned int height, typename T>
+	Vector<height, T> operator-(const Vector<height, T> &left, const Vector<height, T> &right)
+	{
+		Vector<height, T> ret;
+		for (int i = 0; i < height; i++)
+		{
+			ret[i] = left[i] - right[i];
+		}
+		return ret;
+	}
+
+
+
+	template<unsigned int height, unsigned int common, unsigned int width, typename T>
+	Matrix<height, width, T> operator*(const Matrix<height, common, T> &left, const Matrix<common, width, T> &right)
+	{
+		Matrix<height, width, T> ret;
 
 		for (int row = 0; row < height; row++)
 		{
-			for (int col = 0; col < newWidth; col++)
+			for (int col = 0; col < width; col++)
 			{
-				T *val = newVals + row*newWidth + col;
-				*val = 0;
-
-				for (int i = 0; i < width; i++)
+				ret[row][col] = 0;
+				for (int i = 0; i < common; i++)
 				{
-					*val += this->vals[row*width + i] * right.vals[i*newWidth + col];
+					ret[row][col] += left[row][i] * right[i][col];
 				}
 			}
 		}
-		return Matrix<height, newWidth, T>(newVals);
+		return ret;
+	}
+
+	template<unsigned int height, unsigned int common, typename T>
+	Vector<height, T> operator*(const Matrix<height, common, T> &left, const Vector<common, T> &right)
+	{
+		Vector<height, T> ret;
+
+		for (int row = 0; row < height; row++)
+		{
+			ret[row] = 0;
+			for (int i = 0; i < common; i++)
+			{
+				ret[row] += left[row][i] * right[i];
+			}
+		}
+		return ret;
 	}
 
 	template<unsigned int height, unsigned int width, typename T>
@@ -215,33 +264,79 @@ namespace Mat
 		return mat * num;
 	}
 
-	template<unsigned int height, unsigned int width, typename T>
-	Matrix<height, width, T> Matrix<height, width, T>::operator*(T num) const
+	template<unsigned int height, typename T>
+	Vector<height, T> operator*(T num, const Vector<height, T> &vec)
 	{
-		T newVals[height*width];
-		for (int i = 0; i < height*width; i++)
-		{
-			newVals[i] = this->vals[i] * num;
-		}
-		return Matrix<height, width, T>(newVals);
+		return vec * num;
 	}
 
 	template<unsigned int height, unsigned int width, typename T>
-	Matrix<height, width, T> Matrix<height, width, T>::operator/(T num) const
+	Matrix<height, width, T> operator*(const Matrix<height, width, T> &left, T num)
 	{
-		T newVals[height*width];
-		for (int i = 0; i < height*width; i++)
+		Matrix<height, width, T> ret;
+		for (int i = 0; i < height; i++)
 		{
-			newVals[i] = this->vals[i] / num;
+			for (int j = 0; j < width; j++)
+			{
+				ret[i][j] = left[i][j] * num;
+			}
 		}
-		return Matrix<height, width, T>(newVals);
+		return ret;
 	}
+
+	template<unsigned int height, typename T>
+	Vector<height, T> operator*(const Vector<height, T> &left, T num)
+	{
+		Vector<height, T> ret;
+		for (int i = 0; i < height; i++)
+		{
+			ret[i] = left[i] * num;
+		}
+		return ret;
+	}
+
+
+
+	template<unsigned int height, unsigned int width, typename T>
+	Matrix<height, width, T> operator/(const Matrix<height, width, T> &left, T num)
+	{
+		Matrix<height, width, T> ret;
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				ret[i][j] = left[i][j] / num;
+			}
+		}
+		return ret;
+	}
+
+	template<unsigned int height, typename T>
+	Vector<height, T> operator/(const Vector<height, T> &left, T num)
+	{
+		Vector<height, T> ret;
+		for (int i = 0; i < height; i++)
+		{
+			ret[i] = left[i] / num;
+		}
+		return ret;
+	}
+
+
 
 	template<unsigned int height, unsigned int width, typename T>
 	T* Matrix<height, width, T>::operator[](int row)
 	{
 		return this->vals + row * width;
 	}
+
+	template<unsigned int height, unsigned int width, typename T>
+	T const* Matrix<height, width, T>::operator[](int row) const
+	{
+		return this->vals + row * width;
+	}
+
+
 
 	template<unsigned int height, unsigned int width, typename T>
 	std::string Matrix<height, width, T>::toString() const

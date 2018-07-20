@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
+#include <string>
+
 #include "MatrixTypes.h"
 
 namespace GLBackend
@@ -10,6 +12,9 @@ namespace GLBackend
 
 	class Shader
 	{
+		bool creationSucceeded;
+		char *infoLog = nullptr;
+
 		unsigned int programID;
 		//TODO break shader stages into their own class, for reuse, better management
 		unsigned int vertexShaderID;
@@ -24,6 +29,9 @@ namespace GLBackend
 	public:
 		Shader(unsigned int vertexElements, const char* vertexSource, const char* fragmentSource);
 		~Shader();
+
+		bool isGood() const { return this->creationSucceeded; };
+		char const* getInfoLog() const { return this->infoLog; };
 
 		void bind() const;
 		void unbind() const;

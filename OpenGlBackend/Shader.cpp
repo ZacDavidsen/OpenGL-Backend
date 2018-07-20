@@ -11,16 +11,12 @@ atrribArrays [name, data length, data type]
 uniforms [name, data type]
 */
 
-//Shader::Shader()
-//{
-//}
 namespace GLBackend
 {
 	Shader::Shader(unsigned int vertexElements, const char* vertexSource, const char* fragmentSource)
 	{
 		//TODO break shader stages into their own class, for reuse, better management
 		int success;
-		char infoLog[512];
 
 		this->vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(this->vertexShaderID, 1, &vertexSource, NULL);
@@ -28,8 +24,13 @@ namespace GLBackend
 		glGetShaderiv(this->vertexShaderID, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(this->vertexShaderID, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+			int logLength;
+			glGetShaderiv(this->vertexShaderID, GL_INFO_LOG_LENGTH, &logLength);
+			this->infoLog = new char[logLength];
+
+			glGetShaderInfoLog(this->vertexShaderID, logLength, NULL, this->infoLog);
+			this->creationSucceeded = false;
+			return;
 		}
 
 		this->fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -38,8 +39,13 @@ namespace GLBackend
 		glGetShaderiv(this->fragmentShaderID, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(this->fragmentShaderID, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+			int logLength;
+			glGetShaderiv(this->fragmentShaderID, GL_INFO_LOG_LENGTH, &logLength);
+			this->infoLog = new char[logLength];
+
+			glGetShaderInfoLog(this->fragmentShaderID, 512, NULL, this->infoLog);
+			this->creationSucceeded = false;
+			return;
 		}
 
 		this->programID = glCreateProgram();
@@ -49,11 +55,17 @@ namespace GLBackend
 		glGetProgramiv(this->programID, GL_LINK_STATUS, &success);
 		if (!success)
 		{
-			glGetProgramInfoLog(this->programID, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+			int logLength;
+			glGetShaderiv(this->programID, GL_INFO_LOG_LENGTH, &logLength);
+			this->infoLog = new char[logLength];
+
+			glGetProgramInfoLog(this->programID, 512, NULL, this->infoLog);
+			this->creationSucceeded = false;
+			return;
 		}
 
 		this->vertexElements = vertexElements;
+		this->creationSucceeded = true;
 	}
 
 	Shader::~Shader()
@@ -75,6 +87,11 @@ namespace GLBackend
 		}
 		this->uniforms.clear();
 
+		if (this->infoLog != nullptr)
+		{
+			delete[] this->infoLog;
+		}
+
 		glDeleteShader(this->vertexShaderID);
 		glDeleteShader(this->fragmentShaderID);
 		glDeleteProgram(this->programID);
@@ -82,11 +99,16 @@ namespace GLBackend
 
 
 
-	void Shader::bind() const {
+	void Shader::bind() const 
+	{
+		if (!this->creationSucceeded)
+			return;
+
 		glUseProgram(this->programID);
 	}
 
-	void Shader::unbind() const {
+	void Shader::unbind() const 
+	{
 		glUseProgram(0);
 	}
 
@@ -94,12 +116,18 @@ namespace GLBackend
 
 	void Shader::addAttribute(const char* name, unsigned int elements, unsigned int offset)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = glGetAttribLocation(this->programID, name);
 		addAttribute(location, name, elements, offset);
 	}
 
 	void Shader::addAttribute(int location, const char* name, unsigned int elements, unsigned int offset)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		Attribute* attr = new Attribute{ location, elements, offset };
 		this->attributes.push_back(attr);
 	}
@@ -113,6 +141,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const Mat2 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -122,6 +153,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const Mat3 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -131,6 +165,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const Mat4 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -142,6 +179,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const Vec2 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -151,6 +191,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const iVec2 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -160,6 +203,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const uVec2 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -180,6 +226,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const Vec3 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -189,6 +238,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const iVec3 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -198,6 +250,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const uVec3 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -218,6 +273,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const Vec4 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -227,6 +285,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const iVec4 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -236,6 +297,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const uVec4 &data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -256,6 +320,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, float data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -265,6 +332,9 @@ namespace GLBackend
 	
 	void Shader::setUniform(std::string name, int data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -274,6 +344,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, unsigned int data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -283,6 +356,9 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, bool data)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		int location = getUniformLocation(name);
 
 		glUseProgram(this->programID);
@@ -292,6 +368,9 @@ namespace GLBackend
 
 	void Shader::setTexture(int textureSlot, std::string uniformName, int textureId)
 	{
+		if (!this->creationSucceeded)
+			return;
+
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
 		glBindTexture(GL_TEXTURE_2D, textureId);
 		setUniform(uniformName, textureSlot);

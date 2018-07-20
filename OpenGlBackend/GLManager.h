@@ -21,6 +21,8 @@ public:
 	GLManager();
 	~GLManager();
 
+	void enableDebugOutput();
+
 	void createShaderProgram(int referenceId, unsigned int vertexElements, const char* vertexSource, const char* fragmentSource);
 	void addShaderAttribute(int shaderId, const char* name, unsigned int elements, unsigned int offset);
 	void addShaderAttribute(int shaderId, int location, const char* name, unsigned int elements, unsigned int offset);

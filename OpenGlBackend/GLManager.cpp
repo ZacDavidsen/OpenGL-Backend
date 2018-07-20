@@ -1,6 +1,7 @@
 #include "GLManager.h"
 #include <glad\glad.h>
 #include <iostream>
+#include <map>
 
 #include "Shader.h"
 #include "Model.h"
@@ -8,6 +9,10 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
+void APIENTRY openglDebugCallback(GLenum source, GLenum type, GLuint id,
+	GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
+
 
 
 GLManager::GLManager()
@@ -47,9 +52,24 @@ GLManager::~GLManager()
 
 
 
+void GLManager::enableDebugOutput()
+{
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(openglDebugCallback, 0);
+}
+
+
+
 void GLManager::createShaderProgram(int referenceId, unsigned int vertexElements, const char* vertexSource, const char* fragmentSource)
 {
 	GLBackend::Shader* shader = new GLBackend::Shader(vertexElements, vertexSource, fragmentSource);
+	if (!shader->isGood())
+	{
+		std::cout << "------- SHADER CREATION FAILED -------" << std::endl;
+		std::cout << shader->getInfoLog() << std::endl;
+		std::cout << "--------------------------------------" << std::endl;
+		//throw std::runtime_error("SHADER CREATION FAILED");
+	}
 	this->shaders.emplace(referenceId, shader);
 }
 
@@ -150,4 +170,47 @@ void GLManager::drawItem(int shaderId, int modelId) {
 
 	model->unbind();
 	shader->unbind();
+}
+
+
+
+//Would be kinda nice to not have these file scope
+std::map<GLenum, const char*> sourceEnum{
+	{ GL_DEBUG_SOURCE_API,				"API" },
+	{ GL_DEBUG_SOURCE_WINDOW_SYSTEM,	"WINDOW SYSTEM" },
+	{ GL_DEBUG_SOURCE_SHADER_COMPILER,	"SHADER COMPILER" },
+	{ GL_DEBUG_SOURCE_THIRD_PARTY,		"THIRD PARTY" },
+	{ GL_DEBUG_SOURCE_APPLICATION,		"APPLICATION" },
+	{ GL_DEBUG_SOURCE_OTHER,			"OTHER" }
+};
+
+std::map<GLenum, const char*> typeEnum{
+	{ GL_DEBUG_TYPE_ERROR,				"ERROR" },
+	{ GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR,"DEPRECATED BEHAVIOR" },
+	{ GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR,	"UNDEFINED BEHAVIOR" },
+	{ GL_DEBUG_TYPE_PORTABILITY,		"PORTABILITY" },
+	{ GL_DEBUG_TYPE_PERFORMANCE,		"PERFORMANCE" },
+	{ GL_DEBUG_TYPE_MARKER,				"MARKER" },
+	{ GL_DEBUG_TYPE_PUSH_GROUP,			"PUSH GROUP" },
+	{ GL_DEBUG_TYPE_POP_GROUP,			"POP GROUP" },
+	{ GL_DEBUG_TYPE_OTHER,				"OTHER" },
+};
+
+std::map<GLenum, const char*> severityEnum{
+	{ GL_DEBUG_SEVERITY_HIGH,			"HIGH" },
+	{ GL_DEBUG_SEVERITY_MEDIUM,			"MEDIUM" },
+	{ GL_DEBUG_SEVERITY_LOW,			"LOW" },
+	{ GL_DEBUG_SEVERITY_NOTIFICATION,	"NOTIFICATION" },
+};
+
+void APIENTRY openglDebugCallback(GLenum source, GLenum type, GLuint id,
+	GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+	std::cout << "---------- GL DEBUG MESSAGE ----------" << std::endl;
+	std::cout << "Source:   " << sourceEnum[source] << std::endl;
+	std::cout << "Type:     " << typeEnum[type] << std::endl;
+	std::cout << "ID:       " << id << std::endl;
+	std::cout << "Severity: " << severityEnum[severity] << std::endl;
+	std::cout << "Message:\n" << message << std::endl;
+	std::cout << "--------------------------------------" << std::endl;
 }
