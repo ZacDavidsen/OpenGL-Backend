@@ -1,7 +1,6 @@
 #pragma once
 #include <initializer_list>
 #include <string>
-#include <cmath>
 #include <sstream>
 
 #include "MatrixTypes.h"
@@ -136,6 +135,24 @@ namespace Mat
 	Matrix<height, width, T>::~Matrix()
 	{
 	}
+
+
+
+	template<unsigned int height, unsigned int width, typename T>
+	bool operator==(const Matrix<height, width, T> &left, const Matrix<height, width, T> &right)
+	{
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				if (left[i][j] != right[i][j])
+					return false;
+			}
+		}
+		return true;
+	}
+
+	//The assignment operator shouldn't need to be overloaded since vals is stored in the class
 
 
 
