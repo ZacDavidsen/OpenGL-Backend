@@ -1,9 +1,11 @@
 #include "Matrix.h"
 
+#include <cmath>
+
 namespace Mat
 {
 	template<unsigned int length>
-	Mat::Vector<length> normalize(const Mat::Vector<length> &vec)
+	float magnitude(const Vector<length> &vec)
 	{
 		float mag = 0;
 
@@ -12,9 +14,18 @@ namespace Mat
 			mag += vec[i] * vec[i];
 		}
 
-		mag = std::sqrt(mag);
+		return std::sqrt(mag);
+	}
 
-		return vec / mag;
+	template<unsigned int length>
+	Vector<length> normalize(const Vector<length> &vec)
+	{
+		float mag = magnitude(vec);
+
+		if (mag != 0)
+			return vec / mag;
+		else
+			return vec;
 	}
 
 	Vec3 cross(Vec3 left, Vec3 right)
@@ -29,9 +40,9 @@ namespace Mat
 	}
 
 	template<unsigned int length>
-	Mat::Vector<length> dot(const Mat::Vector<length> &left, const Mat::Vector<length> &right) 
+	Vector<length> dot(const Vector<length> &left, const Vector<length> &right) 
 	{
-		Mat::Vector<length> ret;
+		Vector<length> ret;
 		
 		for (int i = 0; i < length; i++)
 		{
@@ -89,11 +100,12 @@ namespace Mat
 
 	float toRads(float in)
 	{
-		return in*3.14159265f / 180;
+		return in * 3.14159265f / 180;
 	}
 
 	//https://stackoverflow.com/questions/8115352/glmperspective-explanation
-	Mat4 perspective(float FOVangle, float aspectRatio, float nearz, float farz)
+
+	Mat4 perspectiveFOV(float FOVangle, float aspectRatio, float nearz, float farz)
 	{
 		float vals[16];
 		for (int i = 0; i < 16; i++)
@@ -113,7 +125,6 @@ namespace Mat
 	//http://www.songho.ca/opengl/gl_projectionmatrix.html
 	//was used for how to create the following projection matrices
 
-
 	Mat4 perspective(float left, float right, float top, float bottom, float nearz, float farz)
 	{
 		float vals[16];
@@ -132,7 +143,7 @@ namespace Mat
 	}
 
 
-	Mat4 perspective2(float width, float height, float nearz, float farz)
+	Mat4 perspective(float width, float height, float nearz, float farz)
 	{
 		float vals[16];
 		for (int i = 0; i < 16; i++)

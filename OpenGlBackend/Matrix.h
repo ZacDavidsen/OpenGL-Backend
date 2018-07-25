@@ -7,21 +7,29 @@
 
 namespace Mat
 {
+	//the Vector operations below could be defined as member functions but 
+	//are instead defined externally to keep the interface (with cross product)
+	//consistent, and also because they're really only needed for floats...
+
 	template<unsigned int length>
-	Mat::Vector<length> normalize(const Mat::Vector<length> &vec);
+	float magnitude(const Vector<length> &vec);
+
+	template<unsigned int length>
+	Vector<length> normalize(const Vector<length> &vec);
+
+	template<unsigned int length>
+	Vector<length> dot(const Vector<length> &left, const Vector<length> &right);
 
 	Vec3 cross(Vec3 left, Vec3 right);
-	template<unsigned int length>
-	Mat::Vector<length> dot(const Mat::Vector<length> &left, const Mat::Vector<length> &right);
 
 	Mat4 translate(const Mat4 &mat, const Vec3 &transform);
 	Mat4 scale(const Mat4 &mat, const Vec3 &transform);
 	Mat4 rotate(const Mat4 &m, float angle, const Vec3 &v);
 
 	float toRads(float in);
-	Mat4 perspective(float FOVangle, float aspectRatio, float nearz, float farz);
+	Mat4 perspectiveFOV(float FOVangle, float aspectRatio, float nearz, float farz);
 	Mat4 perspective(float left, float right, float top, float bottom, float nearz, float farz);
-	Mat4 perspective2(float width, float height, float nearz, float farz);
+	Mat4 perspective(float width, float height, float nearz, float farz);
 
 	Mat4 orthographic(float left, float right, float bottom, float top, float nearz, float farz);
 	Mat4 orthographic(float width, float height, float nearz, float farz);
@@ -41,9 +49,9 @@ namespace Mat
 
 	public:
 		//TODO: passing 0 for diagVal looks the same as passing nullptr for values, resulting in ambiguous calls..
-		Matrix(T diagVal = 1);
-		Matrix(T values[]);
-		Matrix(std::initializer_list<T> values);
+		explicit Matrix(T diagVal = 1);
+		explicit Matrix(T values[]);
+		explicit Matrix(std::initializer_list<T> values);
 		Matrix(const Matrix &mat);
 		~Matrix();
 
@@ -65,9 +73,9 @@ namespace Mat
 	class Vector : public Matrix<length, 1, T>
 	{
 	public:
-		Vector(T initVal = 0) : Matrix(initVal){}
-		Vector(T values[]) : Matrix(values){}
-		Vector(std::initializer_list<T> values) : Matrix(values){}
+		explicit Vector(T initVal = 0) : Matrix(initVal){}
+		explicit Vector(T values[]) : Matrix(values){}
+		explicit Vector(std::initializer_list<T> values) : Matrix(values){}
 		Vector(const Matrix &mat) : Matrix(mat){}
 
 		T& operator[](int index)

@@ -114,7 +114,7 @@ int main()
 		Vec3{-1.3f,  1.0f, -1.5f}
 	};
 
-	camera.setPosition({ 0.0f, 0.0f, 3.0f });
+	camera.setPosition(Vec3{ 0.0f, 0.0f, 3.0f });
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
@@ -205,7 +205,7 @@ int main()
 
 void initShaders(GLManager& man, int screenWidth, int screenHeight)
 {
-	Mat4 perspective = Mat::perspective(Mat::toRads(45.0f), static_cast<float>(screenWidth) / screenHeight, 0.1f, 100.0f);
+	Mat4 perspective = Mat::perspectiveFOV(Mat::toRads(45.0f), static_cast<float>(screenWidth) / screenHeight, 0.1f, 100.0f);
 	Mat4 textOrtho = Mat::orthographic(0.0f, static_cast<float>(screenWidth), 0.0f, static_cast<float>(screenHeight), 0.0f, 100.0f);
 	Vec3 lightColor{ 1.0f, 1.0f, 1.0f };
 	Vec3 lightPosition{ 0.0f, 0.0f, -5.0f };
