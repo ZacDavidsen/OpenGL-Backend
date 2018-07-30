@@ -2,7 +2,7 @@
 
 namespace ShaderLoad
 {
-	int load(char *fileName, char *buffer, int bufSize);
-	int loadProgram(char *program, char *vertBuf, char *fragBuf, int bufSize);
+	int load(const char *fileName, char *buffer, int bufSize);
+	int loadProgram(const char *program, char *vertBuf, char *fragBuf, int bufSize);
 }
 

@@ -41,6 +41,7 @@ public:
 
 	void addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements);
 	void addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements, unsigned int EBO[], unsigned int EBOTriangles);
+	void addModelAttribute(int modelId, std::string name, int size, int offset);
 
 	void drawItem(int shaderId, int modelId);
 };

@@ -1,6 +1,6 @@
 #include "Shader.h"
 #include "Matrix.h"
-#include <glad\glad.h>
+#include <glad/glad.h>
 #include <iostream>
 
 /*
@@ -71,9 +71,9 @@ namespace GLBackend
 	Shader::~Shader()
 	{
 		//TODO: This destructor might cause problems if the shader is ever passed by value....
-		for (auto iter = this->attributes.crbegin(); iter != this->attributes.crend(); iter++) 
+		for (auto iter = this->attributes.cbegin(); iter != this->attributes.cend(); iter++) 
 		{
-			Attribute* attr = *iter;
+			Attribute* attr = iter->second;
 
 			delete attr;
 		}
@@ -128,11 +128,11 @@ namespace GLBackend
 		if (!this->creationSucceeded)
 			return;
 
-		Attribute* attr = new Attribute{ location, elements, offset };
-		this->attributes.push_back(attr);
+		Attribute* attr = new Attribute{ location, elements/*, offset*/ };
+		this->attributes.emplace(name, attr);
 	}
 
-	const std::vector<Attribute*>& Shader::getAttributes() const
+	const std::unordered_map<std::string, Shader::Attribute*>& Shader::getAttributes() const
 	{
 		return this->attributes;
 	}

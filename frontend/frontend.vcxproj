@@ -150,9 +150,6 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="shaders.h" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\default.frag" />
     <None Include="Resources\default.vert" />
     <None Include="Resources\simpleText.frag" />

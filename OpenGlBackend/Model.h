@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+#include <unordered_map>
 
 namespace GLBackend
 {
@@ -6,6 +8,8 @@ namespace GLBackend
 
 	class Model
 	{
+		struct Attribute;
+
 		unsigned int lastBoundShader = 0;
 		unsigned int VAO;
 		unsigned int VBO;
@@ -13,17 +17,27 @@ namespace GLBackend
 		unsigned int drawCount;
 		bool hasEBO;
 
+		std::unordered_map<std::string, Attribute*> attributes;
+
 	public:
 
-		Model(float *vertices, unsigned int numVertices, unsigned int numVertexElements);
-		Model(float *vertices, unsigned int numVertices, unsigned int numVertexElements, unsigned int *EBO, unsigned int numTriangles);
+		Model(float *vertices, unsigned int numVertices, unsigned int elementsPerVertex);
+		Model(float *vertices, unsigned int numVertices, unsigned int elementsPerVertex, unsigned int *EBO, unsigned int numTriangles);
 		~Model();
 
 		bool getHasEBO() const;
 		unsigned int getDrawCount() const;
 
+		void addAttribute(std::string name, int size, int offset);
+
 		void bindToShader(Shader const *shader);
 		void unbind() const;
+	};
+
+	struct Model::Attribute {
+		//int VBO;
+		int size;
+		int offset;
 	};
 }
 

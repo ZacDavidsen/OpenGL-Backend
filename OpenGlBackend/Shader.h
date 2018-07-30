@@ -12,6 +12,11 @@ namespace GLBackend
 
 	class Shader
 	{
+	public:
+		struct Attribute;
+		struct Uniform;
+
+	private:
 		bool creationSucceeded;
 		char *infoLog = nullptr;
 
@@ -21,7 +26,7 @@ namespace GLBackend
 		unsigned int fragmentShaderID;
 		unsigned int vertexElements;
 
-		std::vector<Attribute*> attributes;
+		std::unordered_map<std::string, Attribute*> attributes;
 		std::unordered_map<std::string, Uniform*> uniforms;
 
 		int getUniformLocation(std::string name);
@@ -41,7 +46,7 @@ namespace GLBackend
 
 		void addAttribute(const char* name, unsigned int elements, unsigned int offset);
 		void addAttribute(int location, const char* name, unsigned int elements, unsigned int offset);
-		const std::vector<Attribute*>& getAttributes() const;
+		const std::unordered_map<std::string, Shader::Attribute*>& getAttributes() const;
 
 		void setUniform(std::string name, const Mat2 &data);
 		void setUniform(std::string name, const Mat3 &data);
@@ -68,19 +73,23 @@ namespace GLBackend
 		void setUniform(std::string name, bool data);
 
 		void setTexture(int textureSlot, std::string uniformName, int textureId);
+
+
+
+		struct Attribute
+		{
+			int location;
+			unsigned int size;
+			//dataType
+			//unsigned int offset;
+		};
+
+		struct Uniform
+		{
+			int location;
+			//unsigned int dataType;
+		};
 	};
 
-	struct Attribute
-	{
-		int location;
-		unsigned int size;
-		//dataType
-		unsigned int offset;
-	};
 
-	struct Uniform
-	{
-		int location;
-		//unsigned int dataType;
-	};
 }

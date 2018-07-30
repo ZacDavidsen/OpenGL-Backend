@@ -5,7 +5,7 @@
 
 namespace ShaderLoad
 {
-	int load(char *fileName, char *buffer, int bufSize)
+	int load(const char *fileName, char *buffer, int bufSize)
 	{
 		std::ifstream inFile(fileName);
 
@@ -19,7 +19,7 @@ namespace ShaderLoad
 		return 1;
 	}
 
-	int loadProgram(char *prog, char *vertBuf, char *fragBuf, int bufSize)
+	int loadProgram(const char *prog, char *vertBuf, char *fragBuf, int bufSize)
 	{
 		std::string program(prog);
 		std::ifstream inFile;

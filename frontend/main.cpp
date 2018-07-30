@@ -1,5 +1,5 @@
-#include <glad\glad.h>
-#include <GLFW\Glfw3.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <sstream>
@@ -8,7 +8,6 @@
 #include <chrono>
 
 #include "window.h"
-#include "shaders.h"
 #include "GLManager.h"
 #include "Matrix.h"
 #include "ShaderLoader.h"
@@ -117,11 +116,12 @@ int main()
 	camera.setPosition(Vec3{ 0.0f, 0.0f, 3.0f });
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
 	double startTime, currentTime, dt, lastFpsTime = glfwGetTime();
-	char frameCounter = 0;
+	char frameCounter = 1;
 	std::string fps;
 	
 	while (!glfwWindowShouldClose(window))
@@ -221,12 +221,14 @@ void initShaders(GLManager& man, int screenWidth, int screenHeight)
 	man.loadUniform(SHADER_TEXTURE, "lightColor", lightColor);
 	man.loadUniform(SHADER_TEXTURE, "lightPos", lightPosition);
 
-	//man.createShaderProgram(SHADER_COLOR, 6, colorVertexSource, colorFragmentSource);
+	//ShaderLoad::loadProgram("Resources/color", vertSource, fragSource, 1024);
+	//man.createShaderProgram(SHADER_COLOR, 6, vertSource, fragSource);
 	//man.addShaderAttribute(SHADER_COLOR, "aPos", 3, 0);
 	//man.addShaderAttribute(SHADER_COLOR, "aColor", 3, 3);
 	//man.loadUniform(SHADER_COLOR, "projection", perspective);
 
-	man.createShaderProgram(SHADER_LIGHT, 8, lightVertexSource, lightFragmentSource);
+	ShaderLoad::loadProgram("Resources/light", vertSource, fragSource, 1024);
+	man.createShaderProgram(SHADER_LIGHT, 8, vertSource, fragSource);
 	man.addShaderAttribute(SHADER_LIGHT, "aPos", 3, 0);
 	man.loadUniform(SHADER_LIGHT, "projection", perspective);
 	man.loadUniform(SHADER_LIGHT, "lightColor", lightColor);
@@ -254,11 +256,11 @@ void loadModels(GLManager& man)
 	float vertices[] = {
 		//position			  //texture	   //normal
 		//back side
-		-0.5f, -0.5f, -0.5f,    0.0f, 0.0f,    0.0f,  0.0f, -1.0f,
 		 0.5f, -0.5f, -0.5f,    1.0f, 0.0f,    0.0f,  0.0f, -1.0f,
-		 0.5f,  0.5f, -0.5f,    1.0f, 1.0f,    0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,    0.0f, 0.0f,    0.0f,  0.0f, -1.0f,
 		 0.5f,  0.5f, -0.5f,    1.0f, 1.0f,    0.0f,  0.0f, -1.0f,
 		-0.5f,  0.5f, -0.5f,    0.0f, 1.0f,    0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,    1.0f, 1.0f,    0.0f,  0.0f, -1.0f,
 		-0.5f, -0.5f, -0.5f,    0.0f, 0.0f,    0.0f,  0.0f, -1.0f,
 		//front side
 		-0.5f, -0.5f,  0.5f,    0.0f, 0.0f,    0.0f,  0.0f,  1.0f,
@@ -275,11 +277,11 @@ void loadModels(GLManager& man)
 		-0.5f, -0.5f,  0.5f,    0.0f, 0.0f,   -1.0f,  0.0f,  0.0f,
 		-0.5f,  0.5f,  0.5f,    1.0f, 0.0f,   -1.0f,  0.0f,  0.0f,
 		//right side
-		 0.5f,  0.5f,  0.5f,    1.0f, 0.0f,    1.0f,  0.0f,  0.0f,
 		 0.5f,  0.5f, -0.5f,    1.0f, 1.0f,    1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,    0.0f, 1.0f,    1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,    1.0f, 0.0f,    1.0f,  0.0f,  0.0f,
 		 0.5f, -0.5f, -0.5f,    0.0f, 1.0f,    1.0f,  0.0f,  0.0f,
 		 0.5f, -0.5f,  0.5f,    0.0f, 0.0f,    1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,    0.0f, 1.0f,    1.0f,  0.0f,  0.0f,
 		 0.5f,  0.5f,  0.5f,    1.0f, 0.0f,    1.0f,  0.0f,  0.0f,
 		//bottom side
 		-0.5f, -0.5f, -0.5f,    0.0f, 1.0f,    0.0f, -1.0f,  0.0f,
@@ -289,15 +291,18 @@ void loadModels(GLManager& man)
 		-0.5f, -0.5f,  0.5f,    0.0f, 0.0f,    0.0f, -1.0f,  0.0f,
 		-0.5f, -0.5f, -0.5f,    0.0f, 1.0f,    0.0f, -1.0f,  0.0f,
 		//top side
+		 0.5f,  0.5f, -0.5f,    1.0f, 1.0f,    0.0f,  1.0f,  0.0f, 
 		-0.5f,  0.5f, -0.5f,    0.0f, 1.0f,    0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,    1.0f, 1.0f,    0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,    1.0f, 0.0f,    0.0f,  1.0f,  0.0f,
 		 0.5f,  0.5f,  0.5f,    1.0f, 0.0f,    0.0f,  1.0f,  0.0f,
 		-0.5f,  0.5f,  0.5f,    0.0f, 0.0f,    0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,    1.0f, 0.0f,    0.0f,  1.0f,  0.0f,
 		-0.5f,  0.5f, -0.5f,    0.0f, 1.0f,    0.0f,  1.0f,  0.0f
 	};
 
 	man.addModel(MODEL_BOX, vertices, 36, 8);
+	man.addModelAttribute(MODEL_BOX, "aPos", 3, 0);
+	man.addModelAttribute(MODEL_BOX, "aTexCoord", 2, 3);
+	man.addModelAttribute(MODEL_BOX, "aNorm", 3, 5);
 
 	float* loadedVertices = nullptr;
 	int numTriangles;
@@ -305,6 +310,8 @@ void loadModels(GLManager& man)
 	parseObjFile("Resources/house.obj", loadedVertices, numTriangles, ModelLoaderInclude::Normals);
 
 	man.addModel(MODEL_HOUSE, loadedVertices, numTriangles * 3, 6);
+	man.addModelAttribute(MODEL_HOUSE, "aPos", 3, 0);
+	man.addModelAttribute(MODEL_HOUSE, "aNorm", 3, 3);
 
 	delete[] loadedVertices;
 
@@ -325,6 +332,7 @@ void loadModels(GLManager& man)
 	};
 
 	man.addModel(MODEL_TEXT_QUAD, textVerts, 6, 2);
+	man.addModelAttribute(MODEL_TEXT_QUAD, "aPos", 2, 0);
 }
 
 void processInput(GLFWwindow *window, Camera &camera, double *initx, double *inity)

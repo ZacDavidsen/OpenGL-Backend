@@ -1,12 +1,12 @@
 #include "Model.h"
-#include <glad\glad.h>
+#include <glad/glad.h>
 #include <iostream>
 
 #include "Shader.h"
 
 namespace GLBackend
 {
-	Model::Model(float *vertices, unsigned int numVertices, unsigned int numVertexElements) 
+	Model::Model(float *vertices, unsigned int numVertices, unsigned int elementsPerVertex)
 		: drawCount(numVertices), hasEBO(false)
 	{
 		glGenVertexArrays(1, &this->VAO);
@@ -14,13 +14,13 @@ namespace GLBackend
 
 		glGenBuffers(1, &this->VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVertexElements * numVertices, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * elementsPerVertex * numVertices, vertices, GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
 
-	Model::Model(float *vertices, unsigned int numVertices, unsigned int numVertexElements, unsigned int *EBO, unsigned int numTriangles) 
+	Model::Model(float *vertices, unsigned int numVertices, unsigned int elementsPerVertex, unsigned int *EBO, unsigned int numTriangles)
 		: drawCount(numTriangles), hasEBO(true)
 	{
 		glGenVertexArrays(1, &this->VAO);
@@ -28,7 +28,7 @@ namespace GLBackend
 
 		glGenBuffers(1, &this->VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVertexElements * numVertices, vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * elementsPerVertex * numVertices, vertices, GL_STATIC_DRAW);
 
 		glGenBuffers(1, &this->EBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
@@ -46,6 +46,12 @@ namespace GLBackend
 			glDeleteBuffers(1, &this->EBO);
 		glDeleteBuffers(1, &this->VBO);
 		glDeleteVertexArrays(1, &this->VAO);
+
+		for (auto pair : this->attributes)
+		{
+			delete pair.second;
+		}
+		this->attributes.clear();
 	}
 
 	bool Model::getHasEBO() const
@@ -58,6 +64,12 @@ namespace GLBackend
 		return this->drawCount;
 	}
 
+	void Model::addAttribute(std::string name, int size, int offset)
+	{
+		Model::Attribute* attr = new Model::Attribute{ size, offset };
+		this->attributes.emplace(name, attr);
+	}
+
 	void Model::bindToShader(Shader const *shader)
 	{
 		glBindVertexArray(this->VAO);
@@ -66,12 +78,17 @@ namespace GLBackend
 		{
 			this->lastBoundShader = shader->getId();
 
-			glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+			glBindVertexBuffer(0, this->VBO, 0, shader->getVertexElements() * sizeof(float));
 
 			for (auto attr : shader->getAttributes())
 			{
-				glVertexAttribPointer(attr->location, attr->size, GL_FLOAT, GL_FALSE, shader->getVertexElements() * sizeof(float), (void*)(attr->offset * sizeof(float)));
-				glEnableVertexAttribArray(attr->location);
+				auto iter = this->attributes.find(attr.first);
+				if (iter == this->attributes.end())
+					continue;
+
+				glEnableVertexAttribArray(attr.second->location);
+				glVertexAttribFormat(attr.second->location, iter->second->size, GL_FLOAT, GL_FALSE, iter->second->offset * sizeof(float));
+				glVertexAttribBinding(attr.second->location, 0);
 			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);

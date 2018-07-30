@@ -1,5 +1,5 @@
 #include "GLManager.h"
-#include <glad\glad.h>
+#include <glad/glad.h>
 #include <iostream>
 #include <map>
 
@@ -150,6 +150,14 @@ void GLManager::addModel(int referenceId, float vertices[], unsigned int vertice
 	GLBackend::Model* model = new GLBackend::Model(vertices, verticesCount, numVertexElements, EBO, EBOTriangles);
 	this->models.emplace(referenceId, model);
 }
+
+
+
+void GLManager::addModelAttribute(int modelId, std::string name, int size, int offset) 
+{
+	this->models.at(modelId)->addAttribute(name, size, offset);
+}
+
 
 
 void GLManager::drawItem(int shaderId, int modelId) {

@@ -1,5 +1,3 @@
-#include "glad\glad.h"
-#include "GLFW\Glfw3.h"
 #include <iostream>
 
 #include "window.h"
@@ -33,7 +31,10 @@ int initWindow(int width, int height, GLFWwindow*& windowOut, bool useDebugConte
 		return -1;
 	}
 
-	glViewport(0, 0, width, height);
+	int fbwidth, fbheight;
+	glfwGetFramebufferSize(window, &fbwidth, &fbheight);
+
+	glViewport(0, 0, fbwidth, fbheight);
 
 	return 0;
 }
