@@ -147,15 +147,23 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\color.frag" />
+    <None Include="Resources\color.vert" />
     <None Include="Resources\default.frag" />
     <None Include="Resources\default.vert" />
+    <None Include="Resources\light.frag" />
+    <None Include="Resources\light.vert" />
     <None Include="Resources\simpleText.frag" />
     <None Include="Resources\simpleText.vert" />
     <None Include="Resources\simpleTexture.frag" />
     <None Include="Resources\simpleTexture.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Entity.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

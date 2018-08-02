@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include <vector>
 
 #include "window.h"
 #include "GLManager.h"
@@ -13,6 +14,8 @@
 #include "ShaderLoader.h"
 #include "Camera.h"
 #include "ModelLoader.h"
+
+#include "Entity.h"
 
 enum Shaders
 {
@@ -45,7 +48,7 @@ enum Textures
 //TARGET_FRAMERATE only matters if using framelimit, and not using GLFW's framelimiter
 #define TARGET_FRAMERATE 60
 
-#define ENABLE_DEBUGGING_OUTPUT true
+#define ENABLE_DEBUGGING_OUTPUT false
 
 void callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void processInput(GLFWwindow *window, Camera& camera, double *initx = nullptr, double *inity = nullptr);
@@ -113,6 +116,15 @@ int main()
 		Vec3{-1.3f,  1.0f, -1.5f}
 	};
 
+	std::vector<Entity> cubes;
+
+	for (int i = 0; i < 10; i++)
+	{
+		cubes.push_back(Entity(&man, MODEL_BOX, SHADER_TEXTURE));
+		cubes[i].setPosition(cubePositions[i]);
+		cubes[i].setRotation(Mat::toRads(20.0f) * i, Vec3{ 1.0f, 0.3f, 0.5f });
+	}
+
 	camera.setPosition(Vec3{ 0.0f, 0.0f, 3.0f });
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -151,6 +163,7 @@ int main()
 
 		for (unsigned int i = 0; i < 10; i++)
 		{
+			cubes[i].draw();
 			Mat4 trans;
 			float angle = 20.0f * i;
 			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });

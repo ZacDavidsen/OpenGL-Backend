@@ -18,6 +18,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\default.frag">
@@ -38,5 +41,22 @@
     <None Include="Resources\simpleText.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Resources\color.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\color.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\light.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\light.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
