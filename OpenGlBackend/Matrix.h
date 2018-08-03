@@ -39,9 +39,9 @@ namespace Mat
 	template<unsigned int height, unsigned int width, typename T>
 	class Matrix
 	{
-		static_assert(std::is_fundamental_v<T>, "Matrix and Vector can only use primitive types!");
+		static_assert(std::is_fundamental<T>::value, "Matrix and Vector can only use primitive types!");
 
-		template<unsigned int height, unsigned int width, typename T> friend class Matrix;
+		template<unsigned int h, unsigned int w, typename T2> friend class Matrix;
 
 	protected:
 
@@ -73,19 +73,19 @@ namespace Mat
 	class Vector : public Matrix<length, 1, T>
 	{
 	public:
-		explicit Vector(T initVal = 0) : Matrix(initVal){}
-		explicit Vector(T values[]) : Matrix(values){}
-		explicit Vector(std::initializer_list<T> values) : Matrix(values){}
-		Vector(const Matrix &mat) : Matrix(mat){}
+		explicit Vector(T initVal = 0) : Matrix<length, 1, T>(initVal){}
+		explicit Vector(T values[]) : Matrix<length, 1, T>(values){}
+		explicit Vector(std::initializer_list<T> values) : Matrix<length, 1, T>(values){}
+		Vector(const Matrix<length, 1, T> &mat) : Matrix<length, 1, T>(mat){}
 
 		T& operator[](int index)
 		{ 
-			return vals[index]; 
+			return this->vals[index]; 
 		}
 
 		const T operator[](int index) const
 		{
-			return vals[index];
+			return this->vals[index];
 		}
 	};
 

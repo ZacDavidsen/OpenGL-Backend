@@ -22,7 +22,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ModelLoader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Shader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ShaderLoader.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Camera.h" />
@@ -33,6 +32,5 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ModelLoader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Shader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ShaderLoader.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)window.h" />
   </ItemGroup>
 </Project>
