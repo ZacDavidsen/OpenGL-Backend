@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include <memory>
 
 namespace GLBackend
 {
@@ -30,7 +31,10 @@ namespace GLBackend
 
 		void addAttribute(std::string name, int size, int offset);
 
-		void bindToShader(Shader const *shader);
+		void drawWithShader(std::shared_ptr<Shader> shader);
+		
+	private:
+		void bindToShader(const std::shared_ptr<Shader> shader);
 		void unbind() const;
 	};
 

@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include <memory>
 
 #include "MatrixTypes.h"
 
@@ -9,8 +10,10 @@ namespace GLBackend
 {
 	struct Attribute;
 	struct Uniform;
+	
+	class Model;
 
-	class Shader
+	class Shader : public std::enable_shared_from_this<Shader>
 	{
 	public:
 		struct Attribute;
@@ -74,6 +77,8 @@ namespace GLBackend
 
 		void setTexture(int textureSlot, std::string uniformName, int textureId);
 
+
+		// void draw(std::shared_ptr<Model> model);
 
 
 		struct Attribute

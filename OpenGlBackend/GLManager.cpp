@@ -22,20 +22,8 @@ GLManager::GLManager()
 
 GLManager::~GLManager()
 {
-	for (auto entry : this->shaders)
-	{
-		GLBackend::Shader* shader = entry.second;
-
-		delete shader;
-	}
 	this->shaders.clear();
 
-	for (auto entry : this->models)
-	{
-		GLBackend::Model* model = entry.second;
-
-		delete model;
-	}
 	this->models.clear();
 
 	unsigned int *texs = new unsigned int[this->textures.size()];
@@ -60,52 +48,35 @@ void GLManager::enableDebugOutput()
 
 
 
-void GLManager::createShaderProgram(int referenceId, unsigned int vertexElements, const char* vertexSource, const char* fragmentSource)
+std::shared_ptr<GLBackend::Shader> GLManager::createShaderProgram(Resources::Shader shader, unsigned int vertexElements, const char* vertexSource, const char* fragmentSource)
 {
-	GLBackend::Shader* shader = new GLBackend::Shader(vertexElements, vertexSource, fragmentSource);
-	if (!shader->isGood())
+	std::shared_ptr<GLBackend::Shader> shaderobj = std::make_shared<GLBackend::Shader>(vertexElements, vertexSource, fragmentSource);
+	if (!shaderobj->isGood())
 	{
 		std::cout << "------- SHADER CREATION FAILED -------" << std::endl;
-		std::cout << shader->getInfoLog() << std::endl;
+		std::cout << shaderobj
+		->getInfoLog() << std::endl;
 		std::cout << "--------------------------------------" << std::endl;
 		//throw std::runtime_error("SHADER CREATION FAILED");
 	}
-	this->shaders.emplace(referenceId, shader);
+	this->shaders.emplace(static_cast<int>(shader), shaderobj);
+	return shaderobj;
 }
 
-void GLManager::addShaderAttribute(int shaderId, const char* name, unsigned int elements, unsigned int offset)
+std::shared_ptr<GLBackend::Shader> GLManager::getShader(Resources::Shader shader)
 {
-	this->shaders.at(shaderId)->addAttribute(name, elements, offset);
-}
-
-void GLManager::addShaderAttribute(int shaderId, int location, const char* name, unsigned int elements, unsigned int offset)
-{
-	this->shaders.at(shaderId)->addAttribute(location, name, elements, offset);
+	//return this->shaders.at(shader);
+	return this->shaders.at(static_cast<int>(shader));
 }
 
 
-
-void GLManager::loadUniform(int shaderId, std::string name, int value)
-{
-	this->shaders.at(shaderId)->setUniform(name, value);
-}
-
-void GLManager::loadUniform(int shaderId, std::string name, unsigned int value)
-{
-	this->shaders.at(shaderId)->setUniform(name, value);
-}
-
-void GLManager::setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId)
-{
-	this->shaders.at(shaderId)->setTexture(textureSlot, uniformName, textures.at(textureId));
-}
 
 void GLManager::setTexturePath(std::string path)
 {
 	this->texturePath = path;
 }
 
-void GLManager::loadTexture(int referenceId, std::string fileName)
+void GLManager::loadTexture(Resources::Texture tex, std::string fileName)
 {
 	unsigned int texture;
 	glGenTextures(1, &texture);
@@ -132,53 +103,40 @@ void GLManager::loadTexture(int referenceId, std::string fileName)
 	}
 	stbi_image_free(data);
 
-	this->textures.emplace(referenceId, texture);
+	this->textures.emplace(static_cast<int>(tex), texture);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
-
-void GLManager::addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements)
+int GLManager::getTexture(Resources::Texture tex)
 {
-	GLBackend::Model* model = new GLBackend::Model(vertices, verticesCount, numVertexElements);
-	this->models.emplace(referenceId, model);
+	return this->textures.at(static_cast<int>(tex));
 }
 
-void GLManager::addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements, unsigned int EBO[], unsigned int EBOTriangles)
+
+
+std::shared_ptr<GLBackend::Model> GLManager::addModel(Resources::Model model, float vertices[], unsigned int verticesCount, int numVertexElements)
 {
-	GLBackend::Model* model = new GLBackend::Model(vertices, verticesCount, numVertexElements, EBO, EBOTriangles);
-	this->models.emplace(referenceId, model);
+	std::shared_ptr<GLBackend::Model> modelobj = std::make_shared<GLBackend::Model>(vertices, verticesCount, numVertexElements);
+	this->models.emplace(static_cast<int>(model), modelobj);
+	return modelobj;
 }
 
-
-
-void GLManager::addModelAttribute(int modelId, std::string name, int size, int offset) 
+std::shared_ptr<GLBackend::Model> GLManager::addModel(Resources::Model model, float vertices[], unsigned int verticesCount, int numVertexElements, unsigned int EBO[], unsigned int EBOTriangles)
 {
-	this->models.at(modelId)->addAttribute(name, size, offset);
+	std::shared_ptr<GLBackend::Model> modelobj = std::make_shared<GLBackend::Model>(vertices, verticesCount, numVertexElements, EBO, EBOTriangles);
+	this->models.emplace(static_cast<int>(model), modelobj);
+	return modelobj;
+}
+
+std::shared_ptr<GLBackend::Model> GLManager::getModel(Resources::Model model)
+{
+	return this->models.at(static_cast<int>(model));
 }
 
 
 
-void GLManager::drawItem(int shaderId, int modelId) {
-	GLBackend::Shader* shader = this->shaders.at(shaderId);
-	GLBackend::Model* model = this->models.at(modelId);
 
-	shader->bind();
-	model->bindToShader(shader);
-
-	if (model->getHasEBO())
-	{
-		glDrawElements(GL_TRIANGLES, model->getDrawCount(), GL_UNSIGNED_INT, 0);
-	}
-	else
-	{
-		glDrawArrays(GL_TRIANGLES, 0, model->getDrawCount());
-	}
-
-	model->unbind();
-	shader->unbind();
-}
 
 
 

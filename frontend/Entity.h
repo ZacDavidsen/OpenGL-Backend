@@ -1,14 +1,22 @@
 #pragma once
 
 #include "Matrix.h"
+#include "memory"
 
 class GLManager;
+enum class ShaderProgram : int;
+enum class ModelType : int;
+
+namespace GLBackend
+{
+	class Shader;
+	class Model;
+};
 
 class Entity
 {
-	GLManager *manager;
-	int model;
-	int shader;
+	std::shared_ptr<GLBackend::Model> model;
+	std::shared_ptr<GLBackend::Shader> shader;
 
 	Vec3 scale;
 	Vec4 quaternion;
@@ -18,7 +26,7 @@ class Entity
 	Mat4 modelMatrix;
 
 public:
-	Entity(GLManager *manager, int model, int shader);
+	Entity(std::shared_ptr<GLBackend::Model> model, std::shared_ptr<GLBackend::Shader> shader);
 	~Entity();
 
 	Vec3 getScale() const;

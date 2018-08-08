@@ -3,10 +3,11 @@
 #include <cmath>
 
 #include "GLManager.h"
+#include "Shader.h"
+#include "Model.h"
 
-
-Entity::Entity(GLManager *manager, int model, int shader)
-	: manager(manager), model(model), shader(shader), scale(Vec3(1)), quaternion(Vec4{ 0,0,0,1 }) , position(Vec3(0.0f))
+Entity::Entity(std::shared_ptr<GLBackend::Model> model, std::shared_ptr<GLBackend::Shader> shader)
+	: model(model), shader(shader), scale(Vec3(1)), quaternion(Vec4{ 0,0,0,1 }) , position(Vec3(0.0f))
 {
 }
 
@@ -157,8 +158,9 @@ void Entity::draw()
 		this->transformUpdated = false;
 	}
 
-	this->manager->loadUniform(this->shader, "model", this->modelMatrix);
-	this->manager->drawItem(this->shader, this->model);
+	this->shader->setUniform("model", this->modelMatrix);
+	//this->shader->draw(this->model);
+	this->model->drawWithShader(this->shader);
 }
 
 

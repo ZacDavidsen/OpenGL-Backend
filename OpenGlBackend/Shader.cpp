@@ -1,7 +1,10 @@
 #include "Shader.h"
-#include "Matrix.h"
+
 #include <glad/glad.h>
 #include <iostream>
+
+#include "Model.h"
+#include "Matrix.h"
 
 /*
 when creating a shader I need :
@@ -10,6 +13,25 @@ fragment source
 atrribArrays [name, data length, data type]
 uniforms [name, data type]
 */
+
+#define CHECK_CREATION() \
+	if (!this->creationSucceeded)\
+		return
+
+#define LOAD_TEMPLATE(TYPE, ARGS...) \
+	int location = getUniformLocation(name);\
+	glUseProgram(this->programID);\
+	glUniform##TYPE(location, ARGS);\
+	glUseProgram(0)
+
+#define LOAD_MATRIX(TYPE) \
+	LOAD_TEMPLATE(Matrix##TYPE##v, 1, GL_TRUE, data.getGLFormat())
+
+#define LOAD_VECTOR(TYPE) \
+	LOAD_TEMPLATE(TYPE##v, 1, data.getGLFormat())
+
+#define LOAD_SINGLE(TYPE) \
+	LOAD_TEMPLATE(1##TYPE, data)
 
 namespace GLBackend
 {
@@ -101,8 +123,7 @@ namespace GLBackend
 
 	void Shader::bind() const 
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
 		glUseProgram(this->programID);
 	}
@@ -116,8 +137,7 @@ namespace GLBackend
 
 	void Shader::addAttribute(const char* name, unsigned int elements, unsigned int offset)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
 		int location = glGetAttribLocation(this->programID, name);
 		addAttribute(location, name, elements, offset);
@@ -125,8 +145,7 @@ namespace GLBackend
 
 	void Shader::addAttribute(int location, const char* name, unsigned int elements, unsigned int offset)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
 		Attribute* attr = new Attribute{ location, elements/*, offset*/ };
 		this->attributes.emplace(name, attr);
@@ -141,76 +160,46 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const Mat2 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniformMatrix2fv(location, 1, GL_TRUE, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_MATRIX(2f);
 	}
 
 	void Shader::setUniform(std::string name, const Mat3 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniformMatrix3fv(location, 1, GL_TRUE, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_MATRIX(3f);
 	}
 
 	void Shader::setUniform(std::string name, const Mat4 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniformMatrix4fv(location, 1, GL_TRUE, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_MATRIX(4f);
 	}
 
 
 
 	void Shader::setUniform(std::string name, const Vec2 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform2fv(location, 1, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_VECTOR(2f);
 	}
 
 	void Shader::setUniform(std::string name, const iVec2 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform2iv(location, 1, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_VECTOR(2i);
 	}
 
 	void Shader::setUniform(std::string name, const uVec2 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform2uiv(location, 1, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_VECTOR(2ui);
 	}
 
 	//void Shader::setUniform(std::string name, const bVec2 data)
@@ -226,38 +215,23 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const Vec3 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform3fv(location, 1, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_VECTOR(3f);
 	}
 
 	void Shader::setUniform(std::string name, const iVec3 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform3iv(location, 1, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_VECTOR(3i);
 	}
 
 	void Shader::setUniform(std::string name, const uVec3 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform3uiv(location, 1, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_VECTOR(3ui);
 	}
 
 	//void Shader::setUniform(std::string name, const bVec3 data)
@@ -273,38 +247,23 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, const Vec4 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform4fv(location, 1, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_VECTOR(4f);
 	}
 
 	void Shader::setUniform(std::string name, const iVec4 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform4iv(location, 1, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_VECTOR(4i);
 	}
 
 	void Shader::setUniform(std::string name, const uVec4 &data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform4uiv(location, 1, data.getGLFormat());
-		glUseProgram(0);
+		LOAD_VECTOR(4ui);
 	}
 
 	//void Shader::setUniform(std::string name, const bVec4 data)
@@ -320,56 +279,35 @@ namespace GLBackend
 
 	void Shader::setUniform(std::string name, float data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform1f(location, data);
-		glUseProgram(0);
+		LOAD_SINGLE(f);
 	}
 	
 	void Shader::setUniform(std::string name, int data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform1i(location, data);
-		glUseProgram(0);
+		LOAD_SINGLE(i);
 	}
 
 	void Shader::setUniform(std::string name, unsigned int data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform1ui(location, data);
-		glUseProgram(0);
+		LOAD_SINGLE(ui);
 	}
 
 	void Shader::setUniform(std::string name, bool data)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
-		int location = getUniformLocation(name);
-
-		glUseProgram(this->programID);
-		glUniform1i(location, data);
-		glUseProgram(0);
+		LOAD_SINGLE(i);
 	}
 
 	void Shader::setTexture(int textureSlot, std::string uniformName, int textureId)
 	{
-		if (!this->creationSucceeded)
-			return;
+		CHECK_CREATION();
 
 		glActiveTexture(GL_TEXTURE0 + textureSlot);
 		glBindTexture(GL_TEXTURE_2D, textureId);
@@ -378,7 +316,7 @@ namespace GLBackend
 
 
 
-	int Shader::getUniformLocation(std::string name) 
+	int Shader::getUniformLocation(std::string name)
 	{
 		Uniform* uni;
 		auto locationIterator = this->uniforms.find(name);
@@ -394,4 +332,24 @@ namespace GLBackend
 		}
 		return uni->location;
 	}
+
+
+
+	// void Shader::draw(std::shared_ptr<Model> model)
+	// {
+	// 	this->bind();
+	// 	model->bindToShader(shared_from_this());
+
+	// 	if (model->getHasEBO())
+	// 	{
+	// 		glDrawElements(GL_TRIANGLES, model->getDrawCount(), GL_UNSIGNED_INT, 0);
+	// 	}
+	// 	else
+	// 	{
+	// 		glDrawArrays(GL_TRIANGLES, 0, model->getDrawCount());
+	// 	}
+
+	// 	model->unbind();
+	// 	this->unbind();
+	// }
 }

@@ -1,7 +1,16 @@
 #pragma once
+
 #include <unordered_map>
+#include <memory>
+
 #include "MatrixTypes.h"
-#include "Shader.h"
+
+namespace Resources
+{
+	enum class Shader : int;
+	enum class Model : int;
+	enum class Texture : int;
+}
 
 namespace GLBackend
 {
@@ -11,8 +20,8 @@ namespace GLBackend
 
 class GLManager
 {
-	std::unordered_map<int, GLBackend::Shader*> shaders;
-	std::unordered_map<int, GLBackend::Model*> models;
+	std::unordered_map<int, std::shared_ptr<GLBackend::Shader>> shaders;
+	std::unordered_map<int, std::shared_ptr<GLBackend::Model>> models;
 	std::unordered_map<int, unsigned int> textures;
 
 	std::string texturePath = "";
@@ -23,40 +32,14 @@ public:
 
 	void enableDebugOutput();
 
-	void createShaderProgram(int referenceId, unsigned int vertexElements, const char* vertexSource, const char* fragmentSource);
-	void addShaderAttribute(int shaderId, const char* name, unsigned int elements, unsigned int offset);
-	void addShaderAttribute(int shaderId, int location, const char* name, unsigned int elements, unsigned int offset);
+	std::shared_ptr<GLBackend::Shader> createShaderProgram(Resources::Shader shader, unsigned int vertexElements, const char* vertexSource, const char* fragmentSource);
+	std::shared_ptr<GLBackend::Shader> getShader(Resources::Shader shader);
 
 	void setTexturePath(std::string path);
-	void loadTexture(int referenceId, std::string fileName);
+	void loadTexture(Resources::Texture tex, std::string fileName);
+	int getTexture(Resources::Texture tex);
 
-	template<unsigned int height, unsigned int width, typename T>
-	void loadUniform(int shaderId, std::string name, const Mat::Matrix<height, width, T> data);
-	template<unsigned int height, typename T>
-	void loadUniform(int shaderId, std::string name, const Mat::Vector<height, T> data);
-	void loadUniform(int shaderId, std::string name, int value);
-	void loadUniform(int shaderId, std::string name, unsigned int value);
-
-	void setTextureUniform(int shaderId, int textureSlot, std::string uniformName, int textureId);
-
-	void addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements);
-	void addModel(int referenceId, float vertices[], unsigned int verticesCount, int numVertexElements, unsigned int EBO[], unsigned int EBOTriangles);
-	void addModelAttribute(int modelId, std::string name, int size, int offset);
-
-	void drawItem(int shaderId, int modelId);
+	std::shared_ptr<GLBackend::Model> addModel(Resources::Model model, float vertices[], unsigned int verticesCount, int numVertexElements);
+	std::shared_ptr<GLBackend::Model> addModel(Resources::Model model, float vertices[], unsigned int verticesCount, int numVertexElements, unsigned int EBO[], unsigned int EBOTriangles);
+	std::shared_ptr<GLBackend::Model> getModel(Resources::Model model);
 };
-
-
-//Don't really like having these here, but the template makes it so easy..
-template<unsigned int height, unsigned int width, typename T>
-void GLManager::loadUniform(int shaderId, std::string name, const Mat::Matrix<height, width, T> data)
-{
-	shaders.at(shaderId)->setUniform(name, data);
-}
-
-template<unsigned int height, typename T>
-void GLManager::loadUniform(int shaderId, std::string name, const Mat::Vector<height, T> data)
-{
-	shaders.at(shaderId)->setUniform(name, data);
-}
-

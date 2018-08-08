@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -14,6 +14,7 @@ add_executable(graphics
   frontend/main.cpp
   frontend/Entity.cpp
   frontend/window.cpp
+  frontend/State.cpp
 )
 
 target_include_directories (graphics

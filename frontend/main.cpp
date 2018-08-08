@@ -7,39 +7,47 @@
 #include <thread>
 #include <chrono>
 #include <vector>
+#include <memory>
 
 #include "window.h"
+#include "State.h"
+#include "Entity.h"
+
 #include "GLManager.h"
 #include "Matrix.h"
 #include "ShaderLoader.h"
 #include "Camera.h"
 #include "ModelLoader.h"
+#include "Shader.h"
+#include "Model.h"
 
-#include "Entity.h"
-
-enum Shaders
+namespace Resources
 {
-	SHADER_DEFAULT,
-	SHADER_COLOR,
-	SHADER_LIGHT,
-	SHADER_TEXTURE,
-	SHADER_TEXT
-};
+	enum class Shader : int
+	{
+		DEFAULT,
+		COLOR,
+		LIGHT,
+		TEXTURE,
+		TEXT
+	};
 
-enum Models
-{
-	MODEL_BOX,
-	MODEL_BOTTLE,
-	MODEL_HOUSE,
-	MODEL_TEXT_QUAD
-};
+	enum class Model: int
+	{
+		BOX,
+		BOTTLE,
+		HOUSE,
+		TEXT_QUAD
+	};
 
-enum Textures
-{
-	TEXTURE_WOODEN_BOX,
-	TEXTURE_TILES,
-	TEXTURE_BITMAP
-};
+	enum class Texture : int
+	{
+		WOODEN_BOX,
+		TILES,
+		BITMAP
+	};
+}
+
 
 #define USE_FRAMELIMIT true
 #define USE_GLFW_FRAMELIMIT true
@@ -50,10 +58,10 @@ enum Textures
 
 #define ENABLE_DEBUGGING_OUTPUT false
 
-void callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-void processInput(GLFWwindow *window, Camera& camera, double *initx = nullptr, double *inity = nullptr);
+void drawText(float screenXPos, float screenYPos, std::string text, std::shared_ptr<GLBackend::Shader> shader, std::shared_ptr<GLBackend::Model> model, int texture);
 void initShaders(GLManager& man, int screenWidth, int screenHeight);
 void loadModels(GLManager& man);
+void callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 
 int main()
@@ -75,33 +83,42 @@ int main()
 	glfwSetKeyCallback(window, callback);
 
 	GLManager man;
-	Camera camera;
+	State state;
+
+	glfwSetWindowUserPointer(window, &state);
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-#if !defined(USE_FRAMELIMIT) || !USE_FRAMELIMIT || !defined(USE_GLFW_FRAMELIMIT) || USE_GLFW_FRAMELIMIT == false
-	glfwSwapInterval(0);
-#else
+#if defined(USE_FRAMELIMIT) && USE_FRAMELIMIT && defined(USE_GLFW_FRAMELIMIT) && USE_GLFW_FRAMELIMIT == true
 	glfwSwapInterval(1);
+#else
+	glfwSwapInterval(0);
 #endif
 
 	if (debugging)
 		man.enableDebugOutput();
 
-	//make sure that we have an initial value so we can get the diff each frame
-	double xPos, yPos;
-	glfwGetCursorPos(window, &xPos, &yPos);
-	processInput(window, camera, &xPos, &yPos);
-
 	initShaders(man, width, height);
+
+	std::shared_ptr<GLBackend::Shader> lightShad, defaultShad, textureShad, textShad;
+
+	lightShad = man.getShader(Resources::Shader::LIGHT);
+	defaultShad = man.getShader(Resources::Shader::DEFAULT);
+	textureShad = man.getShader(Resources::Shader::TEXTURE);
+	textShad = man.getShader(Resources::Shader::TEXT);
 
 	man.setTexturePath("Resources/");
 
-	man.loadTexture(TEXTURE_WOODEN_BOX, "container.jpg");
-	man.loadTexture(TEXTURE_TILES, "terrainTiles.png");
-	man.loadTexture(TEXTURE_BITMAP, "defaultFont.bmp");
+	man.loadTexture(Resources::Texture::WOODEN_BOX, "container.jpg");
+	man.loadTexture(Resources::Texture::TILES, "terrainTiles.png");
+	man.loadTexture(Resources::Texture::BITMAP, "defaultFont.bmp");
 
 	loadModels(man);
+
+	std::shared_ptr<GLBackend::Model> boxMod, houseMod, textMod;
+	boxMod = man.getModel(Resources::Model::BOX);
+	houseMod = man.getModel(Resources::Model::HOUSE);
+	textMod = man.getModel(Resources::Model::TEXT_QUAD);
 
 	Vec3 cubePositions[] = {
 		Vec3{0.0f,  0.0f,  0.0f},
@@ -120,76 +137,61 @@ int main()
 
 	for (int i = 0; i < 10; i++)
 	{
-		cubes.push_back(Entity(&man, MODEL_BOX, SHADER_TEXTURE));
+		cubes.push_back(Entity(boxMod, textureShad));
 		cubes[i].setPosition(cubePositions[i]);
 		cubes[i].setRotation(Mat::toRads(20.0f) * i, Vec3{ 1.0f, 0.3f, 0.5f });
 	}
 
-	camera.setPosition(Vec3{ 0.0f, 0.0f, 3.0f });
+	Entity house(houseMod, defaultShad);
+	house.scaleBy(Vec3(0.01f));
+	house.translateBy(Vec3{ 0.0f, 0.0f, 7.0f });
+
+	Entity light(boxMod, lightShad);
+	light.scaleBy(Vec3(0.2f));
+	light.setPosition(Vec3{ 0.0f, 0.0f, -5.0f });
+
+	state.camera.setPosition(Vec3{ 0.0f, 0.0f, 3.0f });
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-	double startTime, currentTime, dt, lastFpsTime = glfwGetTime();
+	double startTime, currentTime, dt, lastFpsTime;
+	startTime = lastFpsTime = glfwGetTime();
 	char frameCounter = 1;
 	std::string fps;
 	
 	while (!glfwWindowShouldClose(window))
 	{
+		dt = state.isPaused() ? 0 : glfwGetTime() - startTime;
 		startTime = glfwGetTime();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		processInput(window, camera);
+		state.processInput(window, dt);
 
-		man.loadUniform(SHADER_LIGHT, "camera", camera.getCameraMatrix());
-		man.drawItem(SHADER_LIGHT, MODEL_BOX);
+		lightShad->setUniform("camera", state.camera.getCameraMatrix());
+		light.draw();
 
-		man.loadUniform(SHADER_DEFAULT, "camera", camera.getCameraMatrix()); 
-		man.loadUniform(SHADER_DEFAULT, "cameraPos", camera.getPosition());
+		defaultShad->setUniform("camera", state.camera.getCameraMatrix()); 
+		defaultShad->setUniform("cameraPos", state.camera.getPosition());
 
-		Mat4 bottleTrans;
-		bottleTrans = Mat::scale(bottleTrans, Vec3(0.01f));
-		bottleTrans = Mat::rotate(bottleTrans, static_cast<float>(glfwGetTime()), Vec3{ 0,1,0 });
-		bottleTrans = Mat::translate(bottleTrans, Vec3{ 0.0f, 0.0f, 7.0f });
-		man.loadUniform(SHADER_DEFAULT, "model", bottleTrans);
-		man.drawItem(SHADER_DEFAULT, MODEL_HOUSE);
+		textureShad->setUniform("camera", state.camera.getCameraMatrix());
+		textureShad->setUniform("cameraPos", state.camera.getPosition());
+		textureShad->setTexture(0, "ourTexture", man.getTexture(Resources::Texture::WOODEN_BOX));
 
-		man.loadUniform(SHADER_TEXTURE, "camera", camera.getCameraMatrix());
-		man.loadUniform(SHADER_TEXTURE, "cameraPos", camera.getPosition());
-		man.setTextureUniform(SHADER_TEXTURE, 0, "ourTexture", TEXTURE_WOODEN_BOX);
+		house.rotateBy(Vec3{ 0.0f, 0.0f, static_cast<float>(dt) });
+		house.draw();
 
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			cubes[i].draw();
-			Mat4 trans;
-			float angle = 20.0f * i;
-			trans = Mat::rotate(trans, Mat::toRads(angle), Vec3{ 1.0f, 0.3f, 0.5f });
-			trans = Mat::translate(trans, cubePositions[i]);
-			man.loadUniform(SHADER_TEXTURE, "model", trans);
-			man.drawItem(SHADER_TEXTURE, MODEL_BOX);
 		}
 
-		glDisable(GL_DEPTH_TEST);
-
-		man.setTextureUniform(SHADER_TEXT, 0, "text", TEXTURE_BITMAP);
-
-		Mat4 textTrans;
-		textTrans = Mat::scale(textTrans, Vec3{ 20, 40, 0 });
-		textTrans = Mat::translate(textTrans, Vec3{ 5, height - 30, 0 });
-
-		for (int i = 0; i < fps.length(); i++)
-		{
-			man.loadUniform(SHADER_TEXT, "model", textTrans);
-			man.loadUniform(SHADER_TEXT, "character", fps[i]);
-			man.drawItem(SHADER_TEXT, MODEL_TEXT_QUAD);
-
-			textTrans = Mat::translate(textTrans, Vec3{ 15, 0, 0 });
-		}
-
-		glEnable(GL_DEPTH_TEST);
+		drawText(5, height - 30, fps, textShad, textMod, man.getTexture(Resources::Texture::BITMAP));
+		if (state.isPaused()) 
+			drawText(5, height - 50, "Paused", textShad, textMod, man.getTexture(Resources::Texture::BITMAP));
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -216,6 +218,29 @@ int main()
 	return 0;
 }
 
+void drawText(float screenXPos, float screenYPos, std::string text, std::shared_ptr<GLBackend::Shader> shader, std::shared_ptr<GLBackend::Model> model, int texture)
+{
+	shader->setTexture(0, "text", texture);
+
+	glDisable(GL_DEPTH_TEST);
+
+	Mat4 textTrans;
+	textTrans = Mat::scale(textTrans, Vec3{ 20, 40, 0 });
+	textTrans = Mat::translate(textTrans, Vec3{ screenXPos, screenYPos, 0 });
+
+	for (int i = 0; i < text.length(); i++)
+	{
+		shader->setUniform("model", textTrans);
+		shader->setUniform("character", text[i]);
+		model->drawWithShader(shader);
+		//textShad->draw(textMod);
+
+		textTrans = Mat::translate(textTrans, Vec3{ 15, 0, 0 });
+	}
+
+	glEnable(GL_DEPTH_TEST);
+}
+
 void initShaders(GLManager& man, int screenWidth, int screenHeight)
 {
 	Mat4 perspective = Mat::perspectiveFOV(Mat::toRads(45.0f), static_cast<float>(screenWidth) / screenHeight, 0.1f, 100.0f);
@@ -224,50 +249,47 @@ void initShaders(GLManager& man, int screenWidth, int screenHeight)
 	Vec3 lightPosition{ 0.0f, 0.0f, -5.0f };
 
 	char vertSource[1024], fragSource[1024];
+	std::shared_ptr<GLBackend::Shader> temp;
 
 	ShaderLoad::loadProgram("Resources/simpleTexture", vertSource, fragSource, 1024);
-	man.createShaderProgram(SHADER_TEXTURE, 8, vertSource, fragSource);
-	man.addShaderAttribute(SHADER_TEXTURE, "aPos", 3, 0);
-	man.addShaderAttribute(SHADER_TEXTURE, "aTexCoord", 2, 3);
-	man.addShaderAttribute(SHADER_TEXTURE, "aNorm", 3, 5);
-	man.loadUniform(SHADER_TEXTURE, "projection", perspective);
-	man.loadUniform(SHADER_TEXTURE, "lightColor", lightColor);
-	man.loadUniform(SHADER_TEXTURE, "lightPos", lightPosition);
+	temp = man.createShaderProgram(Resources::Shader::TEXTURE, 8, vertSource, fragSource);
+	temp->addAttribute("aPos", 3, 0);
+	temp->addAttribute("aTexCoord", 2, 3);
+	temp->addAttribute("aNorm", 3, 5);
+	temp->setUniform("projection", perspective);
+	temp->setUniform("lightColor", lightColor);
+	temp->setUniform("lightPos", lightPosition);
 
 	//ShaderLoad::loadProgram("Resources/color", vertSource, fragSource, 1024);
-	//man.createShaderProgram(SHADER_COLOR, 6, vertSource, fragSource);
-	//man.addShaderAttribute(SHADER_COLOR, "aPos", 3, 0);
-	//man.addShaderAttribute(SHADER_COLOR, "aColor", 3, 3);
-	//man.loadUniform(SHADER_COLOR, "projection", perspective);
+	//man.createShaderProgram(Shader::COLOR, 6, vertSource, fragSource);
+	//man.addShaderAttribute(Shader::COLOR, "aPos", 3, 0);
+	//man.addShaderAttribute(Shader::COLOR, "aColor", 3, 3);
+	//man.loadUniform(Shader::COLOR, "projection", perspective);
 
 	ShaderLoad::loadProgram("Resources/light", vertSource, fragSource, 1024);
-	man.createShaderProgram(SHADER_LIGHT, 8, vertSource, fragSource);
-	man.addShaderAttribute(SHADER_LIGHT, "aPos", 3, 0);
-	man.loadUniform(SHADER_LIGHT, "projection", perspective);
-	man.loadUniform(SHADER_LIGHT, "lightColor", lightColor);
-	Mat4 lightTrans;
-	lightTrans = Mat::scale(lightTrans, Vec3(0.2f));
-	lightTrans = Mat::translate(lightTrans, lightPosition);
-	man.loadUniform(SHADER_LIGHT, "model", lightTrans);
+	temp = man.createShaderProgram(Resources::Shader::LIGHT, 8, vertSource, fragSource);
+	temp->addAttribute("aPos", 3, 0);
+	temp->setUniform("projection", perspective);
+	temp->setUniform("lightColor", lightColor);
 
 	ShaderLoad::loadProgram("Resources/default", vertSource, fragSource, 1024);
-	man.createShaderProgram(SHADER_DEFAULT, 6, vertSource, fragSource);
-	man.addShaderAttribute(SHADER_DEFAULT, "aPos", 3, 0);
-	man.addShaderAttribute(SHADER_DEFAULT, "aNorm", 3, 3);
-	man.loadUniform(SHADER_DEFAULT, "projection", perspective);
-	man.loadUniform(SHADER_DEFAULT, "lightColor", lightColor);
-	man.loadUniform(SHADER_DEFAULT, "lightPos", lightPosition);
+	temp = man.createShaderProgram(Resources::Shader::DEFAULT, 6, vertSource, fragSource);
+	temp->addAttribute("aPos", 3, 0);
+	temp->addAttribute("aNorm", 3, 3);
+	temp->setUniform("projection", perspective);
+	temp->setUniform("lightColor", lightColor);
+	temp->setUniform("lightPos", lightPosition);
 
 	ShaderLoad::loadProgram("Resources/simpleText", vertSource, fragSource, 1024);
-	man.createShaderProgram(SHADER_TEXT, 2, vertSource, fragSource);
-	man.addShaderAttribute(SHADER_TEXT, "aPos", 2, 0);
-	man.loadUniform(SHADER_TEXT, "projection", textOrtho);
+	temp = man.createShaderProgram(Resources::Shader::TEXT, 2, vertSource, fragSource);
+	temp->addAttribute("aPos", 2, 0);
+	temp->setUniform("projection", textOrtho);
 }
 
 void loadModels(GLManager& man) 
 {
 	float vertices[] = {
-		//position			  //texture	   //normal
+		//position			  //textureShad	   //normal
 		//back side
 		 0.5f, -0.5f, -0.5f,    1.0f, 0.0f,    0.0f,  0.0f, -1.0f,
 		-0.5f, -0.5f, -0.5f,    0.0f, 0.0f,    0.0f,  0.0f, -1.0f,
@@ -312,25 +334,27 @@ void loadModels(GLManager& man)
 		-0.5f,  0.5f, -0.5f,    0.0f, 1.0f,    0.0f,  1.0f,  0.0f
 	};
 
-	man.addModel(MODEL_BOX, vertices, 36, 8);
-	man.addModelAttribute(MODEL_BOX, "aPos", 3, 0);
-	man.addModelAttribute(MODEL_BOX, "aTexCoord", 2, 3);
-	man.addModelAttribute(MODEL_BOX, "aNorm", 3, 5);
+	std::shared_ptr<GLBackend::Model> temp;
+
+	temp = man.addModel(Resources::Model::BOX, vertices, 36, 8);
+	temp->addAttribute("aPos", 3, 0);
+	temp->addAttribute("aTexCoord", 2, 3);
+	temp->addAttribute("aNorm", 3, 5);
 
 	float* loadedVertices = nullptr;
 	int numTriangles;
 
 	parseObjFile("Resources/house.obj", loadedVertices, numTriangles, ModelLoaderInclude::Normals);
 
-	man.addModel(MODEL_HOUSE, loadedVertices, numTriangles * 3, 6);
-	man.addModelAttribute(MODEL_HOUSE, "aPos", 3, 0);
-	man.addModelAttribute(MODEL_HOUSE, "aNorm", 3, 3);
+	temp = man.addModel(Resources::Model::HOUSE, loadedVertices, numTriangles * 3, 6);
+	temp->addAttribute("aPos", 3, 0);
+	temp->addAttribute("aNorm", 3, 3);
 
 	delete[] loadedVertices;
 
 	//parseObjFile("Resources/house.obj", loadedVertices, numTriangles, ModelLoaderInclude::Normals);
 
-	//man.addModel(MODEL_BOTTLE, SHADER_DEFAULT, numTriangles * 3, loadedVertices);
+	//man.addModel(MODEL_BOTTLE, Shader::DEFAULT, numTriangles * 3, loadedVertices);
 
 	//delete[] loadedVertices;
 
@@ -344,48 +368,19 @@ void loadModels(GLManager& man)
 		0.0f, 0.0f
 	};
 
-	man.addModel(MODEL_TEXT_QUAD, textVerts, 6, 2);
-	man.addModelAttribute(MODEL_TEXT_QUAD, "aPos", 2, 0);
-}
-
-void processInput(GLFWwindow *window, Camera &camera, double *initx, double *inity)
-{
-	//don't really like this, but it removes the global variables..
-	static double xPos, yPos;
-	if (initx != nullptr && inity != nullptr)
-	{
-		xPos = *initx;
-		yPos = *inity;
-		return;
-	}
-
-	float movementSpeed = 0.05f;
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		movementSpeed *= 0.25;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.moveForward(1 * movementSpeed);
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.moveBack(1 * movementSpeed);
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.moveLeft(1 * movementSpeed);
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.moveRight(1 * movementSpeed);
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		camera.moveDown(1 * movementSpeed);
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		camera.moveUp(1 * movementSpeed);
-
-	float mouseSensitivity = 0.05f;
-	double lastX = xPos, lastY = yPos;
-
-	glfwGetCursorPos(window, &xPos, &yPos);//coordinates are measured from the top-left corner of window
-										   //std::cout << (char)0xd << "dx:" << xPos-lastX << (char)0x9 << "dy:" << lastY-yPos << (char)0x9;
-	camera.rotateHorizontal(Mat::toRads(static_cast<float>(xPos - lastX)*mouseSensitivity));
-	camera.rotateVertical(Mat::toRads(static_cast<float>(lastY - yPos)*mouseSensitivity));
+	temp = man.addModel(Resources::Model::TEXT_QUAD, textVerts, 6, 2);
+	temp->addAttribute("aPos", 2, 0);
 }
 
 void callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_ESCAPE)
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+	if (key == GLFW_KEY_P && action == GLFW_PRESS)
+	{
+		State *state = (State*)glfwGetWindowUserPointer(window);
+
+		state->togglePaused(window);
+	}
 }

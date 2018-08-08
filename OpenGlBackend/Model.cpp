@@ -70,7 +70,7 @@ namespace GLBackend
 		this->attributes.emplace(name, attr);
 	}
 
-	void Model::bindToShader(Shader const *shader)
+	void Model::bindToShader(const std::shared_ptr<Shader> shader)
 	{
 		glBindVertexArray(this->VAO);
 
@@ -93,6 +93,27 @@ namespace GLBackend
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
+	}
+
+	// This is dumb.  The shader should draw the model, not model drawn with shader
+	// But all the data needed to draw is in the model soooo....
+	void Model::drawWithShader(const std::shared_ptr<Shader> shader)
+	{
+		shader->bind();
+
+		this->bindToShader(shader);
+
+		if (this->hasEBO)
+		{
+			glDrawElements(GL_TRIANGLES, this->drawCount, GL_UNSIGNED_INT, 0);
+		}
+		else
+		{
+			glDrawArrays(GL_TRIANGLES, 0, this->drawCount);
+		}
+
+		this->unbind();
+		shader->unbind();
 	}
 
 	void Model::unbind() const
