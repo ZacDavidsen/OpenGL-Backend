@@ -220,7 +220,7 @@ int main()
 
 void drawText(float screenXPos, float screenYPos, std::string text, std::shared_ptr<GLBackend::Shader> shader, std::shared_ptr<GLBackend::Model> model, int texture)
 {
-	shader->setTexture(0, "text", texture);
+	shader->setTexture(0, "tiledTexture", texture);
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -231,7 +231,7 @@ void drawText(float screenXPos, float screenYPos, std::string text, std::shared_
 	for (unsigned int i = 0; i < text.length(); i++)
 	{
 		shader->setUniform("model", textTrans);
-		shader->setUniform("character", text[i]);
+		shader->setUniform("tile", text[i]);
 		model->drawWithShader(shader);
 		//textShad->draw(textMod);
 
