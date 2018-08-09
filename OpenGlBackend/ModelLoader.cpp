@@ -183,7 +183,7 @@ void parseObjFile(const char* filename, float*& verticesOut, int& trianglesOut, 
 	//TODO: make output size dependent on the options given (no unused space for texcoords for example)
 	verticesOut = new float[attribArray.size() * attribElements];
 
-	for (int i = 0; i < attribArray.size(); i++) 
+	for (unsigned int i = 0; i < attribArray.size(); i++) 
 	{
 		int index = 0;
 		Vertex* vec = attribArray[i];

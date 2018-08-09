@@ -9,7 +9,7 @@ namespace Mat
 	{
 		float mag = 0;
 
-		for (int i = 0; i < length; i++)
+		for (unsigned int i = 0; i < length; i++)
 		{
 			mag += vec[i] * vec[i];
 		}

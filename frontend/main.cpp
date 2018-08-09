@@ -228,7 +228,7 @@ void drawText(float screenXPos, float screenYPos, std::string text, std::shared_
 	textTrans = Mat::scale(textTrans, Vec3{ 20, 40, 0 });
 	textTrans = Mat::translate(textTrans, Vec3{ screenXPos, screenYPos, 0 });
 
-	for (int i = 0; i < text.length(); i++)
+	for (unsigned int i = 0; i < text.length(); i++)
 	{
 		shader->setUniform("model", textTrans);
 		shader->setUniform("character", text[i]);

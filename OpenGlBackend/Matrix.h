@@ -94,9 +94,9 @@ namespace Mat
 	template<unsigned int height, unsigned int width, typename T>
 	Matrix<height, width, T>::Matrix(T diagVal)
 	{
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (unsigned int j = 0; j < width; j++)
 			{
 				if (i == j || width == 1)
 				{
@@ -113,7 +113,7 @@ namespace Mat
 	template<unsigned int height, unsigned int width, typename T>
 	Matrix<height, width, T>::Matrix(T values[])
 	{
-		for (int i = 0; i < height*width; i++)
+		for (unsigned int i = 0; i < height*width; i++)
 		{
 			vals[i] = values[i];
 		}
@@ -124,7 +124,7 @@ namespace Mat
 	{
 		const T *begin = values.begin();
 
-		for (int i = 0; i < height*width; i++)
+		for (unsigned int i = 0; i < height*width; i++)
 		{
 			vals[i] = begin[i];
 		}
@@ -133,7 +133,7 @@ namespace Mat
 	template<unsigned int height, unsigned int width, typename T>
 	Matrix<height, width, T>::Matrix(const Matrix &mat)
 	{
-		for (int i = 0; i < height*width; i++)
+		for (unsigned int i = 0; i < height*width; i++)
 		{
 			this->vals[i] = mat.vals[i];
 		}
@@ -149,9 +149,9 @@ namespace Mat
 	template<unsigned int height, unsigned int width, typename T>
 	bool operator==(const Matrix<height, width, T> &left, const Matrix<height, width, T> &right)
 	{
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (unsigned int j = 0; j < width; j++)
 			{
 				if (left[i][j] != right[i][j])
 					return false;
@@ -168,9 +168,9 @@ namespace Mat
 	Matrix<height, width, T> operator+(const Matrix<height, width, T> &left, const Matrix<height, width, T> &right)
 	{
 		Matrix<height, width, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (unsigned int j = 0; j < width; j++)
 			{
 				ret[i][j] = left[i][j] + right[i][j];
 			}
@@ -184,7 +184,7 @@ namespace Mat
 	Vector<height, T> operator+(const Vector<height, T> &left, const Vector<height, T> &right)
 	{
 		Vector<height, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
 			ret[i] = left[i] + right[i];
 		}
@@ -197,9 +197,9 @@ namespace Mat
 	Matrix<height, width, T> operator-(const Matrix<height, width, T> &right)
 	{
 		Matrix<height, width, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (unsigned int j = 0; j < width; j++)
 			{
 				ret[i][j] = -right[i][j];
 			}
@@ -211,7 +211,7 @@ namespace Mat
 	Vector<height, T> operator-(const Vector<height, T> &right)
 	{
 		Vector<height, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
 			ret[i] = -right[i];
 
@@ -225,9 +225,9 @@ namespace Mat
 	Matrix<height, width, T> operator-(const Matrix<height, width, T> &left, const Matrix<height, width, T> &right)
 	{
 		Matrix<height, width, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (unsigned int j = 0; j < width; j++)
 			{
 				ret[i][j] = left[i][j] - right[i][j];
 			}
@@ -239,7 +239,7 @@ namespace Mat
 	Vector<height, T> operator-(const Vector<height, T> &left, const Vector<height, T> &right)
 	{
 		Vector<height, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
 			ret[i] = left[i] - right[i];
 		}
@@ -253,12 +253,12 @@ namespace Mat
 	{
 		Matrix<height, width, T> ret;
 
-		for (int row = 0; row < height; row++)
+		for (unsigned int row = 0; row < height; row++)
 		{
-			for (int col = 0; col < width; col++)
+			for (unsigned int col = 0; col < width; col++)
 			{
 				ret[row][col] = 0;
-				for (int i = 0; i < common; i++)
+				for (unsigned int i = 0; i < common; i++)
 				{
 					ret[row][col] += left[row][i] * right[i][col];
 				}
@@ -272,10 +272,10 @@ namespace Mat
 	{
 		Vector<height, T> ret;
 
-		for (int row = 0; row < height; row++)
+		for (unsigned int row = 0; row < height; row++)
 		{
 			ret[row] = 0;
-			for (int i = 0; i < common; i++)
+			for (unsigned int i = 0; i < common; i++)
 			{
 				ret[row] += left[row][i] * right[i];
 			}
@@ -299,9 +299,9 @@ namespace Mat
 	Matrix<height, width, T> operator*(const Matrix<height, width, T> &left, T num)
 	{
 		Matrix<height, width, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (unsigned int j = 0; j < width; j++)
 			{
 				ret[i][j] = left[i][j] * num;
 			}
@@ -313,7 +313,7 @@ namespace Mat
 	Vector<height, T> operator*(const Vector<height, T> &left, T num)
 	{
 		Vector<height, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
 			ret[i] = left[i] * num;
 		}
@@ -326,9 +326,9 @@ namespace Mat
 	Matrix<height, width, T> operator/(const Matrix<height, width, T> &left, T num)
 	{
 		Matrix<height, width, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (unsigned int j = 0; j < width; j++)
 			{
 				ret[i][j] = left[i][j] / num;
 			}
@@ -340,7 +340,7 @@ namespace Mat
 	Vector<height, T> operator/(const Vector<height, T> &left, T num)
 	{
 		Vector<height, T> ret;
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
 			ret[i] = left[i] / num;
 		}
@@ -368,9 +368,9 @@ namespace Mat
 	{
 		std::stringstream ret = std::stringstream();
 
-		for (int i = 0; i < height; i++)
+		for (unsigned int i = 0; i < height; i++)
 		{
-			for (int j = 0; j < width - 1; j++)
+			for (unsigned int j = 0; j < width - 1; j++)
 			{
 				ret << (vals[i*width + j]) << (",");
 			}
