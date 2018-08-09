@@ -253,9 +253,9 @@ void initShaders(GLManager& man, int screenWidth, int screenHeight)
 
 	ShaderLoad::loadProgram("Resources/simpleTexture", vertSource, fragSource, 1024);
 	temp = man.createShaderProgram(Resources::Shader::TEXTURE, 8, vertSource, fragSource);
-	temp->addAttribute("aPos", 3, 0);
-	temp->addAttribute("aTexCoord", 2, 3);
-	temp->addAttribute("aNorm", 3, 5);
+	temp->addAttribute("aPos", 3);
+	temp->addAttribute("aTexCoord", 2);
+	temp->addAttribute("aNorm", 3);
 	temp->setUniform("projection", perspective);
 	temp->setUniform("lightColor", lightColor);
 	temp->setUniform("lightPos", lightPosition);
@@ -268,21 +268,21 @@ void initShaders(GLManager& man, int screenWidth, int screenHeight)
 
 	ShaderLoad::loadProgram("Resources/light", vertSource, fragSource, 1024);
 	temp = man.createShaderProgram(Resources::Shader::LIGHT, 8, vertSource, fragSource);
-	temp->addAttribute("aPos", 3, 0);
+	temp->addAttribute("aPos", 3);
 	temp->setUniform("projection", perspective);
 	temp->setUniform("lightColor", lightColor);
 
 	ShaderLoad::loadProgram("Resources/default", vertSource, fragSource, 1024);
 	temp = man.createShaderProgram(Resources::Shader::DEFAULT, 6, vertSource, fragSource);
-	temp->addAttribute("aPos", 3, 0);
-	temp->addAttribute("aNorm", 3, 3);
+	temp->addAttribute("aPos", 3);
+	temp->addAttribute("aNorm", 3);
 	temp->setUniform("projection", perspective);
 	temp->setUniform("lightColor", lightColor);
 	temp->setUniform("lightPos", lightPosition);
 
 	ShaderLoad::loadProgram("Resources/simpleText", vertSource, fragSource, 1024);
 	temp = man.createShaderProgram(Resources::Shader::TEXT, 2, vertSource, fragSource);
-	temp->addAttribute("aPos", 2, 0);
+	temp->addAttribute("aPos", 2);
 	temp->setUniform("projection", textOrtho);
 }
 

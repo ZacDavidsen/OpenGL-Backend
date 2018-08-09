@@ -47,8 +47,8 @@ namespace GLBackend
 		unsigned int getId() const { return this->programID; };
 		unsigned int getVertexElements() const { return this->vertexElements; };
 
-		void addAttribute(const char* name, unsigned int elements, unsigned int offset);
-		void addAttribute(int location, const char* name, unsigned int elements, unsigned int offset);
+		void addAttribute(const char* name, unsigned int elements);
+		void addAttribute(int location, const char* name, unsigned int elements);
 		const std::unordered_map<std::string, Shader::Attribute*>& getAttributes() const;
 
 		void setUniform(std::string name, const Mat2 &data);

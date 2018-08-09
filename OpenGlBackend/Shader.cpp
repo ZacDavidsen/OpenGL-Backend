@@ -18,10 +18,10 @@ uniforms [name, data type]
 	if (!this->creationSucceeded)\
 		return
 
-#define LOAD_TEMPLATE(TYPE, ARGS...) \
+#define LOAD_TEMPLATE(TYPE, ...) \
 	int location = getUniformLocation(name);\
 	glUseProgram(this->programID);\
-	glUniform##TYPE(location, ARGS);\
+	glUniform##TYPE(location, __VA_ARGS__);\
 	glUseProgram(0)
 
 #define LOAD_MATRIX(TYPE) \
@@ -135,15 +135,15 @@ namespace GLBackend
 
 
 
-	void Shader::addAttribute(const char* name, unsigned int elements, unsigned int offset)
+	void Shader::addAttribute(const char* name, unsigned int elements)
 	{
 		CHECK_CREATION();
 
 		int location = glGetAttribLocation(this->programID, name);
-		addAttribute(location, name, elements, offset);
+		addAttribute(location, name, elements);
 	}
 
-	void Shader::addAttribute(int location, const char* name, unsigned int elements, unsigned int offset)
+	void Shader::addAttribute(int location, const char* name, unsigned int elements)
 	{
 		CHECK_CREATION();
 
