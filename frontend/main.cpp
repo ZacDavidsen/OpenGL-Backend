@@ -29,7 +29,7 @@ namespace Resources
 		COLOR,
 		LIGHT,
 		TEXTURE,
-		TEXT
+		TILES
 	};
 
 	enum class Model: int
@@ -100,12 +100,12 @@ int main()
 
 	initShaders(man, width, height);
 
-	std::shared_ptr<GLBackend::Shader> lightShad, defaultShad, textureShad, textShad;
+	std::shared_ptr<GLBackend::Shader> lightShad, defaultShad, textureShad, tileShad;
 
 	lightShad = man.getShader(Resources::Shader::LIGHT);
 	defaultShad = man.getShader(Resources::Shader::DEFAULT);
 	textureShad = man.getShader(Resources::Shader::TEXTURE);
-	textShad = man.getShader(Resources::Shader::TEXT);
+	tileShad = man.getShader(Resources::Shader::TILES);
 
 	man.setTexturePath("Resources/");
 
@@ -189,9 +189,9 @@ int main()
 			cubes[i].draw();
 		}
 
-		drawText(5, height - 30, fps, textShad, textMod, man.getTexture(Resources::Texture::BITMAP));
+		drawText(5, height - 30, fps, tileShad, textMod, man.getTexture(Resources::Texture::BITMAP));
 		if (state.isPaused()) 
-			drawText(5, height - 50, "Paused", textShad, textMod, man.getTexture(Resources::Texture::BITMAP));
+			drawText(5, height - 50, "Paused", tileShad, textMod, man.getTexture(Resources::Texture::BITMAP));
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -233,7 +233,7 @@ void drawText(float screenXPos, float screenYPos, std::string text, std::shared_
 		shader->setUniform("model", textTrans);
 		shader->setUniform("tile", text[i]);
 		model->drawWithShader(shader);
-		//textShad->draw(textMod);
+		//tileShad->draw(textMod);
 
 		textTrans = Mat::translate(textTrans, Vec3{ 15, 0, 0 });
 	}
@@ -280,8 +280,8 @@ void initShaders(GLManager& man, int screenWidth, int screenHeight)
 	temp->setUniform("lightColor", lightColor);
 	temp->setUniform("lightPos", lightPosition);
 
-	ShaderLoad::loadProgram("Resources/simpleText", vertSource, fragSource, 1024);
-	temp = man.createShaderProgram(Resources::Shader::TEXT, 2, vertSource, fragSource);
+	ShaderLoad::loadProgram("Resources/tiles", vertSource, fragSource, 1024);
+	temp = man.createShaderProgram(Resources::Shader::TILES, 2, vertSource, fragSource);
 	temp->addAttribute("aPos", 2);
 	temp->setUniform("projection", textOrtho);
 }

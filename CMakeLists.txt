@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -25,4 +25,9 @@ target_include_directories (graphics
 
 target_link_libraries(graphics GLBackend glfw)
 
-file(COPY "frontend/Resources/" DESTINATION "Resources/")
+add_custom_command(TARGET graphics
+  POST_BUILD
+  COMMAND [ -d "${CMAKE_BINARY_DIR}/Resources" ] || mkdir "${CMAKE_BINARY_DIR}/Resources"
+  COMMAND cp --verbose --update --preserve=mode,ownership,timestamps --recursive "${CMAKE_SOURCE_DIR}/frontend/Resources/*" -t "${CMAKE_BINARY_DIR}/Resources"
+  COMMENT "Copying resources to build directory..."
+)
