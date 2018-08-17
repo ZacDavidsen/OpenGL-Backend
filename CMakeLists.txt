@@ -25,9 +25,19 @@ target_include_directories (graphics
 
 target_link_libraries(graphics GLBackend glfw)
 
-add_custom_command(TARGET graphics
-  POST_BUILD
-  COMMAND [ -d "${CMAKE_BINARY_DIR}/Resources" ] || mkdir "${CMAKE_BINARY_DIR}/Resources"
-  COMMAND cp --verbose --update --preserve=mode,ownership,timestamps --recursive "${CMAKE_SOURCE_DIR}/frontend/Resources/*" -t "${CMAKE_BINARY_DIR}/Resources"
-  COMMENT "Copying resources to build directory..."
-)
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+  string (REPLACE "/" "\\" SOURCE_DIR "${CMAKE_SOURCE_DIR}")
+  add_custom_command(TARGET graphics
+    POST_BUILD
+    COMMAND IF NOT EXIST "$(TargetDir)Resources" mkdir "$(TargetDir)Resources"
+    COMMAND echo D | xcopy "${SOURCE_DIR}\\frontend\\Resources" "$(TargetDir)Resources" /D /E /I /Y
+    COMMENT "Copying resources to build directory..."
+  )
+else()
+  add_custom_command(TARGET graphics
+    POST_BUILD
+    COMMAND [ -d "${CMAKE_BINARY_DIR}/Resources" ] || mkdir "${CMAKE_BINARY_DIR}/Resources"
+    COMMAND cp --verbose --update --preserve=mode,ownership,timestamps --recursive "${CMAKE_SOURCE_DIR}/frontend/Resources/*" "${CMAKE_BINARY_DIR}/Resources"
+    COMMENT "Copying resources to build directory..."
+  )
+endif()
