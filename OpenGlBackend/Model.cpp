@@ -78,6 +78,7 @@ namespace GLBackend
 		{
 			this->lastBoundShader = shader->getId();
 
+			/* // Only works on >= GL 4.3
 			glBindVertexBuffer(0, this->VBO, 0, shader->getVertexElements() * sizeof(float));
 
 			for (auto attr : shader->getAttributes())
@@ -89,6 +90,19 @@ namespace GLBackend
 				glEnableVertexAttribArray(attr.second->location);
 				glVertexAttribFormat(attr.second->location, iter->second->size, GL_FLOAT, GL_FALSE, iter->second->offset * sizeof(float));
 				glVertexAttribBinding(attr.second->location, 0);
+			}
+			*/
+
+			glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+
+			for (auto attr : shader->getAttributes())
+			{
+				auto iter = this->attributes.find(attr.first);
+				if (iter == this->attributes.end())
+					continue;
+
+				glEnableVertexAttribArray(attr.second->location);
+				glVertexAttribPointer(attr.second->location, iter->second->size, GL_FLOAT, GL_FALSE, shader->getVertexElements() * sizeof(float), (void*)(iter->second->offset * sizeof(float)));
 			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
