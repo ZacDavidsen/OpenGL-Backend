@@ -159,10 +159,10 @@
     <None Include="Resources\default.vert" />
     <None Include="Resources\light.frag" />
     <None Include="Resources\light.vert" />
-    <None Include="Resources\simpleText.frag" />
-    <None Include="Resources\simpleText.vert" />
     <None Include="Resources\simpleTexture.frag" />
     <None Include="Resources\simpleTexture.vert" />
+    <None Include="Resources\tiles.frag" />
+    <None Include="Resources\tiles.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Entity.h" />
