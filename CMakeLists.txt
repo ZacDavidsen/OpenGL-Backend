@@ -26,11 +26,12 @@ target_include_directories (graphics
 target_link_libraries(graphics GLBackend glfw)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+  find_package(OpenGL)
   string (REPLACE "/" "\\" SOURCE_DIR "${CMAKE_SOURCE_DIR}")
   add_custom_command(TARGET graphics
     POST_BUILD
-    COMMAND IF NOT EXIST "$(TargetDir)Resources" mkdir "$(TargetDir)Resources"
-    COMMAND echo D | xcopy "${SOURCE_DIR}\\frontend\\Resources" "$(TargetDir)Resources" /D /E /I /Y
+    COMMAND IF NOT EXIST \"$(TargetDir)Resources\" mkdir \"$(TargetDir)Resources\"
+    COMMAND echo D | xcopy "${SOURCE_DIR}\\frontend\\Resources" \"$(TargetDir)Resources\" /D /E /I /Y
     COMMENT "Copying resources to build directory..."
   )
 else()

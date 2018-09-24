@@ -46,7 +46,7 @@ namespace GLBackend
 		glGetShaderiv(this->vertexShaderID, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			int logLength;
+			int logLength = 0;
 			glGetShaderiv(this->vertexShaderID, GL_INFO_LOG_LENGTH, &logLength);
 			this->infoLog = new char[logLength];
 
@@ -61,11 +61,11 @@ namespace GLBackend
 		glGetShaderiv(this->fragmentShaderID, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			int logLength;
+			int logLength = 0;
 			glGetShaderiv(this->fragmentShaderID, GL_INFO_LOG_LENGTH, &logLength);
 			this->infoLog = new char[logLength];
 
-			glGetShaderInfoLog(this->fragmentShaderID, 512, NULL, this->infoLog);
+			glGetShaderInfoLog(this->fragmentShaderID, logLength, NULL, this->infoLog);
 			this->creationSucceeded = false;
 			return;
 		}
@@ -77,11 +77,11 @@ namespace GLBackend
 		glGetProgramiv(this->programID, GL_LINK_STATUS, &success);
 		if (!success)
 		{
-			int logLength;
+			int logLength = 0;
 			glGetShaderiv(this->programID, GL_INFO_LOG_LENGTH, &logLength);
 			this->infoLog = new char[logLength];
 
-			glGetProgramInfoLog(this->programID, 512, NULL, this->infoLog);
+			glGetProgramInfoLog(this->programID, logLength, NULL, this->infoLog);
 			this->creationSucceeded = false;
 			return;
 		}
