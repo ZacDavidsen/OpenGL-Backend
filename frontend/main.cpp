@@ -344,7 +344,7 @@ void loadModels(GLManager& man)
 	float* loadedVertices = nullptr;
 	int numTriangles;
 
-	parseObjFile("Resources/house.obj", loadedVertices, numTriangles, ModelLoaderInclude::Normals);
+	ModelLoader::parseObjFile("Resources/house.obj", loadedVertices, numTriangles, ModelLoader::Options::Normals);
 
 	temp = man.addModel(Resources::Model::HOUSE, loadedVertices, numTriangles * 3, 6);
 	temp->addAttribute("aPos", 3, 0);
